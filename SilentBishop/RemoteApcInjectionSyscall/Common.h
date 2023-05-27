@@ -14,8 +14,16 @@ extern VOID SetSSn(DWORD wSystemCall, DWORD64 wSyscallOpAddr);
 extern ExecSyscall();
 
 // comment out to suppress output
-//
+//\
 #define _DBG
+
+#ifdef _DBG 
+#define DEBUG_PRINT(x, ...) printf(x, ##__VA_ARGS__)
+#define _INT getchar()
+#else
+#define DEBUG_PRINT(x, ...)
+#define _INT
+#endif
 
 #define KEYSIZE 32
 #define IVSIZE 16

