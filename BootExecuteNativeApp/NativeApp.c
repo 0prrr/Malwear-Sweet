@@ -187,7 +187,6 @@ FARPROC GetProcAddressH(IN HMODULE hModule, IN DWORD dwAPINameHash)
 
 		if (dwAPINameHash == HASHA(pFunctionName))
 		{
-			//printf("[ %0.4d ] FOUND API -\t NAME: %s -\t ADDRESS: 0x%p  -\t ORDINAL: %d\n", i, pFunctionName, pFunctionAddress, FunctionOrdinalArray[i]);
 			return (FARPROC)pFunctionAddress;
 		}
 	}
