@@ -15,7 +15,7 @@ extern void __stdcall NtProcessStartup(void* Argument)
 	OBJECT_ATTRIBUTES objectAttributes;
 	IO_STATUS_BLOCK ioStatusBlock;
 
-	RtlInitUnicodeString(&filePath, L"\\??\\\\C:\\Users\\oprop\\Downloads\\temp\\woohoo.txt");
+	RtlInitUnicodeString(&filePath, L"\\??\\\\C:\\woohoo.txt");
 
 	InitializeObjectAttributes(&objectAttributes, &filePath, OBJ_CASE_INSENSITIVE, NULL, NULL);
 	NtCreateFile(&fileHandle, GENERIC_WRITE, &objectAttributes, &ioStatusBlock, NULL, FILE_ATTRIBUTE_NORMAL, 0, FILE_CREATE, FILE_NON_DIRECTORY_FILE, NULL, 0);
