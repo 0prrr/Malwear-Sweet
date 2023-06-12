@@ -14,7 +14,7 @@ extern VOID SetSSn(DWORD wSystemCall, DWORD64 wSyscallOpAddr);
 extern ExecSyscall();
 
 // comment out to suppress output
-//
+//\
 #define _DBG
 
 #ifdef _DBG 
