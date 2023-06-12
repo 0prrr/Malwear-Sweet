@@ -484,6 +484,7 @@ int main(int argc, char* argv[])
 	}
 
 	// better to do some more cleanup here...
+	// be aware that exiting the shell crashes the parent process, no matter if the shellcode is generated exitfunc=thread
 	// freeing
 	HeapFree(GetProcessHeap(), 0, pPlaintext);
 
