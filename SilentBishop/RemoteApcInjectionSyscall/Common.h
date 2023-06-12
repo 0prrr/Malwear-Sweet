@@ -14,7 +14,7 @@ extern VOID SetSSn(DWORD wSystemCall, DWORD64 wSyscallOpAddr);
 extern ExecSyscall();
 
 // comment out to suppress output
-//\
+//
 #define _DBG
 
 #ifdef _DBG 
@@ -42,7 +42,7 @@ extern ExecSyscall();
 #define NtWriteFile_CRC32 0x3AFBE45B
 #define NtLockFile_CRC32 0xA0115B88
 
-#define ntdll_CRC32 0x84C05E40
+#define ntdll_CRC32 0x6030EF91
 #define RtlExitUserThread_CRC32 0x7714FA20
 
 #define NT_SUCCESS(s) (((NTSTATUS)(s)) >= 0)
