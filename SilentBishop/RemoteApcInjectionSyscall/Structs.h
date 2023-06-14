@@ -5,6 +5,23 @@
 
 #include <Windows.h>
 
+typedef struct _API_HASHING
+{
+	FARPROC				pGetTickCount64;
+	FARPROC				pOpenProcess;
+	FARPROC				pCallNextHookEx;
+	FARPROC				pSetWindowsHookExW;
+	FARPROC				pGetMessageW;
+	FARPROC				pDefWindowProcW;
+	FARPROC				pUnhookWindowsHookEx;
+	FARPROC				pGetModuleFileNameW;
+	FARPROC				pCreateFileW;
+	FARPROC				pSetFileInformationByHandle;
+	FARPROC				pCloseHandle;
+} API_HASHING, * PAPI_HASHING;
+
+typedef BOOL(WINAPI* fnVirtualProtect)(LPVOID, SIZE_T, DWORD, PDWORD);
+
 typedef struct _NT_SYSCALL
 {
 	DWORD dwSSn;
@@ -35,6 +52,9 @@ typedef struct _SYSCALL_TAB
 	NT_SYSCALL	NtCreateThreadEx;
 	NT_SYSCALL	NtQueueApcThread;
 	NT_SYSCALL	NtAlertResumeThread;
+	NT_SYSCALL	NtProtectVirtualMemory;
+	NT_SYSCALL	NtWriteVirtualMemory;
+	NT_SYSCALL	NtAllocateVirtualMemory;
 } SYSCALL_TAB, * PSYSCALL_TAB;
 
 typedef struct _BENIGN_SYSCALL

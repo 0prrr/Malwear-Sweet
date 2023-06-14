@@ -128,11 +128,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AntiAnalysis.c" />
     <ClCompile Include="RemoteApcInjectionSyscall.c" />
     <ClCompile Include="Syscall.c" />
     <ClCompile Include="Utils.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AntiAnalysis.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="Structs.h" />
   </ItemGroup>

