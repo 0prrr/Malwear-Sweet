@@ -47,11 +47,15 @@ extern ExecSyscall();
 #define SetFileInformationByHandle_CRC32 0x3906AD5E
 #define CloseHandle_CRC32 0xB09315F4
 
+#define NtProtectVirtualMemory_CRC32 0x5C2D1A97
+#define NtWriteVirtualMemory_CRC32 0xE4879939
 #define KERNEL32_CRC32 0x998B531E
 #define VirtualProtect_CRC32 0x10066F2F
 #define VirtualProtectEx_CRC32 0x5D180413
+#define NtAllocateVirtualMemory_CRC32 0xE0762FEB
 #define EtwEventWrite_CRC32 0x0D109B8C
 #define EtwEventWriteEx_CRC32 0x62E2C02A
+
 
 #define NtCreateFile_CRC32 0x3EE6CC56
 #define NtOpenFile_CRC32 0xA1B1DC21

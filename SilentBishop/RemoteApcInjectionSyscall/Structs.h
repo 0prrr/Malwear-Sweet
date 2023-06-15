@@ -20,7 +20,22 @@ typedef struct _API_HASHING
 	FARPROC				pCloseHandle;
 } API_HASHING, * PAPI_HASHING;
 
+typedef NTSTATUS(NTAPI* pNtProtectVirtualMemory)(
+	IN HANDLE ProcessHandle,
+	IN OUT PVOID* BaseAddress,
+
+	IN OUT PSIZE_T RegionSize,
+	IN ULONG NewProtect,
+	OUT PULONG OldProtect);
+
 typedef BOOL(WINAPI* fnVirtualProtect)(LPVOID, SIZE_T, DWORD, PDWORD);
+typedef BOOL(WINAPI* fnVirtualProtectEx)(
+	HANDLE hProcess,
+	LPVOID lpAddress,
+	SIZE_T dwSize,
+	DWORD flNewProtect,
+	PDWORD lpflOldProtect
+	);
 
 typedef struct _NT_SYSCALL
 {

