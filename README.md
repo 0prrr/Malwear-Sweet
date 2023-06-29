@@ -2,7 +2,7 @@
 
 * SilenBishop
 
-	Reimplementation of b33f's UrbanBishop with syscall
+	Reimplementation of b33f's UrbanBishop with syscall. [FuzzySecurity/Sharp-Suite](https://github.com/FuzzySecurity/Sharp-Suite/blob/master/UrbanBishop/UrbanBishop.sln) @b33f. MalDevAcademy @mrd0x @NUL0x4C
 	
 * BootExecuteNativeApp
 
@@ -24,7 +24,7 @@
 
     This is the ultimate go if ever have to use a ROP gadget. A gadget in `bcyrpt.dll` can be used to bypass CFG and get code execution theoretically on any process that has `bcrypt.dll` loaded. Tested on windows 1809, 1909 (chances of failure, reason unknown yet), 21H1, 22H2, windows 11 22H2. Note that once `SetProcessValidCallTargets` is successful, and the process remains alive, CFG on that specifc address is always disabled. Have fun!
 
-# Credit
+* ThreadlessInjection
+    
+    Code ported from [CCob and rasta-mouse's threadless injection](https://github.com/CCob/ThreadlessInject/tree/master). Tested on Windows version 1809 (explorer.exe, chrome.exe, firefox.exe, notepad.exe), 1909 (explorer.exe, chrome.exe, edge.exe, notepad.exe), 21H1 (explorer.exe, chrome.exe, edge.exe, notepad.exe), 22H2 (explorer.exe, chrome.exe, edge.exe, notepad.exe), Win11 22H2 (explorer.exe, chrome.exe, edge.exe, firefox.exe, notepad.exe). CreateEventW is enough to trigger on all tested processes. Please add your own shellcode encryption. Feel free to add other techniques.
 
-* [FuzzySecurity/Sharp-Suite](https://github.com/FuzzySecurity/Sharp-Suite/blob/master/UrbanBishop/UrbanBishop.sln) @b33f
-* MalDevAcademy @mrd0x @NUL0x4C
