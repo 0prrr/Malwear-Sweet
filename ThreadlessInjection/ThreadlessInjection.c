@@ -31,7 +31,7 @@
 // for most processes
 //
 #define TARGET_EXP_FUNC "CreateEventW"
-// oterh choices
+// other choices
 //\
 #define TARGET_EXP_FUNC "MapViewOfFileEx"
 
