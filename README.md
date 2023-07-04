@@ -14,7 +14,7 @@
 
 * TheLostThread
 
-    Hijack a thread without calling SetThreadContext. Still needs improvement because I'm lazy and haven't implement the whole thing well enough to maintain the original functionality of the thread. Just a quick and dirty PoC.
+    Hijack a thread without calling SetThreadContext. Still needs improvement because I'm lazy and haven't implement the whole thing well enough to maintain the original functionality of the thread. Just a quick and dirty PoC. Tested on Windows version 1809 (chrome.exe, msedge.exe, notepad.exe), 22H2 (chrome.exe, msedge.exe, notepad.exe), Windows 11 22H2 (chrome.exe, firefox.exe, msedge.exe, notepad.exe). Be ware of payload execution control. Browsers tend to execute the payload multiple times.
 
 * RopLegit
 
@@ -26,5 +26,5 @@
 
 * ThreadlessInjection
     
-    Code ported from [CCob and rasta-mouse's threadless injection](https://github.com/CCob/ThreadlessInject/tree/master). Tested on Windows version 1809 (explorer.exe, chrome.exe, firefox.exe, notepad.exe), 1909 (explorer.exe, chrome.exe, edge.exe, notepad.exe), 21H1 (explorer.exe, chrome.exe, edge.exe, notepad.exe), 22H2 (explorer.exe, chrome.exe, edge.exe, notepad.exe), Win11 22H2 (explorer.exe, chrome.exe, edge.exe, firefox.exe, notepad.exe). CreateEventW is enough to trigger on all tested processes. Please add your own shellcode encryption. Feel free to add other techniques.
+    Code ported from [CCob and rasta-mouse's threadless injection](https://github.com/CCob/ThreadlessInject/tree/master). Tested on Windows version 1809 (explorer.exe, chrome.exe, firefox.exe, notepad.exe), 1909 (explorer.exe, chrome.exe, msedge.exe, notepad.exe), 21H1 (explorer.exe, chrome.exe, msedge.exe, notepad.exe), 22H2 (explorer.exe, chrome.exe, msedge.exe, notepad.exe), Win11 22H2 (explorer.exe, chrome.exe, msedge.exe, firefox.exe, notepad.exe). CreateEventW is enough to trigger on all tested processes. Please add your own shellcode encryption. Feel free to add other techniques.
 
