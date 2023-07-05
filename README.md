@@ -28,3 +28,6 @@
     
     Code ported from [CCob and rasta-mouse's threadless injection](https://github.com/CCob/ThreadlessInject/tree/master). Tested on Windows version 1809 (explorer.exe, chrome.exe, firefox.exe, notepad.exe), 1909 (explorer.exe, chrome.exe, msedge.exe, notepad.exe), 21H1 (explorer.exe, chrome.exe, msedge.exe, notepad.exe), 22H2 (explorer.exe, chrome.exe, msedge.exe, notepad.exe), Win11 22H2 (explorer.exe, chrome.exe, msedge.exe, firefox.exe, notepad.exe). CreateEventW is enough to trigger on all tested processes. Please add your own shellcode encryption. Feel free to add other techniques.
 
+* COMShellExecute
+    
+    Use `ShellExecute` method exposed by COM object `13709620-C279-11CE-A49E-444553540000` to execute command in C. Nothing interesting, just for fun and stuff.
