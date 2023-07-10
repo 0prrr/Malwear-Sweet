@@ -31,3 +31,7 @@
 * COMShellExecute
     
     Use `ShellExecute` method exposed by COM object `13709620-C279-11CE-A49E-444553540000` to execute command in C. Nothing interesting, just for fun and stuff.
+
+* Process Hollowing (Not quite)
+    
+    Code for process "hollowing" and hopefully more variants in the future. Not quite hollowing the target process since unbacked memory is more like an IoC. The code plays around remote entry point. Good practice for understanding PEB and PE header a bit more.
