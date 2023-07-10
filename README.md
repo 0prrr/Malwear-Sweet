@@ -1,5 +1,7 @@
 # Malwear-Sweet
 
+Please kindly compile all projects in RELEASE mode.
+
 * SilenBishop
 
 	Reimplementation of b33f's UrbanBishop with syscall. [FuzzySecurity/Sharp-Suite](https://github.com/FuzzySecurity/Sharp-Suite/blob/master/UrbanBishop/UrbanBishop.sln) @b33f. MalDevAcademy @mrd0x @NUL0x4C
