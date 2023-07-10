@@ -2,9 +2,12 @@
 *
 * NOTE: PLEASE COMPILE AS RELEASE.
 *
-* Inject whole PE into remote process, not quite process hollowing
+* Inject whole PE into remote process (64bit), not quite process hollowing
 * because hollowed process without backup image path is somewhat too
 * suspicious.
+* 
+* While debugging a normal suspended process, one can find that RCX points
+* to process entry point, and RDX points to PEB. RCX is the focus.
 *
 * The whole PE is injected, and host process ImageBaseAddress is updated
 * then, injected PE ImageBase is updated, RCX is patched with new entry point
