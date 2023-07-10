@@ -3,7 +3,7 @@
 * NOTE: PLEASE COMPILE AS RELEASE.
 *
 * Inject whole PE into remote process (64bit), not quite process hollowing
-* because hollowed process without backup image path is somewhat too
+* because hollowed process without backed up image path is somewhat too
 * suspicious.
 * 
 * While debugging a normal suspended process, one can find that RCX points
@@ -182,7 +182,7 @@ int main()
 	sBytesToAllocate = pPeImgNtHdrs->OptionalHeader.SizeOfImage;
 #ifdef _WIN_11
 	//
-	// seems cannot find memory region below backup up image memory, fallback to default
+	// seems cannot find memory region below backed up image memory, fallback to default
 	// and let system decide the memory allocated region
 	//
 	if (!NT_SUCCESS(status = NtAllocateVirtualMemory(pi.hProcess, &pNewRemoteImgBaseAddr, 0, &sBytesToAllocate, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE)))
