@@ -56,3 +56,4 @@ Please kindly compile all projects in RELEASE mode.
     <br/>https://www.bordergate.co.uk/windows-x64-shellcode-development/
     <br/>https://www.aldeid.com/wiki/PE-Portable-executable
     <br/>https://www.aldeid.com/wiki/PE-Portable-executable#Export_Table
+    <br/>https://defuse.ca/online-x86-assembler.htm
