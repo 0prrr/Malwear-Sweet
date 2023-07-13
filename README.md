@@ -48,6 +48,8 @@ Please kindly compile all projects in RELEASE mode.
 
     The PoC is a handwritten x64 shellcode which resolves `WinExec` and `TerminateProcess` by hash and pops calc.exe. The shellcode will be separated into two stages and linked together by patching the address of second stage into the first one.
 
+    Tested on Windows version 1809, 1909, 21H1, 22H2, Windows 11 22H2. Windows Defender didn't buzz at all.
+
     Next step will be digging into beacon and reverse shell payloads and learn more about the asm implementation, see what can be harnessed.
 
     Referneces:
