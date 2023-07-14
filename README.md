@@ -34,7 +34,7 @@ Please kindly compile all projects in RELEASE mode.
     
     Use `ShellExecute` method exposed by COM object `13709620-C279-11CE-A49E-444553540000` to execute command in C. Nothing interesting, just for fun and stuff.
 
-* Process Hollowing (Not quite)
+* ProcessHollowing (Not quite)
     
     Code for process "hollowing" and hopefully more variants in the future. Not quite hollowing the target process since unbacked memory is more like an IoC. The code plays around remote entry point. Good practice for understanding PEB and PE header a bit more. Tested on Windows 10 1809, 22H2, Windows 11. Feel free to toss in reverse shell PE as payload.
 
@@ -42,7 +42,7 @@ Please kindly compile all projects in RELEASE mode.
     <br/>https://www.blackhat.com/docs/asia-17/materials/asia-17-KA-What-Malware-Authors-Don't-Want-You-To-Know-Evasive-Hollow-Process-Injection-wp.pdf
     <br/>https://dione.lib.unipi.gr/xmlui/bitstream/handle/unipi/11578/Balaoura_MTE1623.pdf?sequence=1&isAllowed=y
 
-* Don't Put Your Eggs in One Basket
+* DontPutYourEggsInOneBasket
     
     The idea is to drop (modularized) shellcdoe into different memory regions (different process???), each part (call it stage) relies on its own and completes certain functionality like resolving functions, setting up registers etc. Then linking each stage together (now by jmp-ing). It seems for now writing your own shellcode is the way to accomplish the goal of staging, since even the basic `exec` payload from msfvenom is jumping and calling into it's own everywhere which makes the goal very hard to reach. I don't know if there's a way to manipulate beacons or more complex paylaods directly, I'm open for discussion.
 
