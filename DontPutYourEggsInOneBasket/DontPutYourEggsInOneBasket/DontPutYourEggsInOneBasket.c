@@ -48,15 +48,15 @@ int main()
         printf("0x%.2X ", stage1[i]);
     }
 
-    memcpy(pAddr_1, stage1, sizeof(stage1));
-
     printf("\nCopy stage 1 ...");
     getchar();
 
-    memcpy(pAddr_2, stage2, sizeof(stage2));
+    memcpy(pAddr_1, stage1, sizeof(stage1));
 
     printf("Copy stage 2 ...");
     getchar();
+
+    memcpy(pAddr_2, stage2, sizeof(stage2));
 
     printf("Create thread ...");
     getchar();

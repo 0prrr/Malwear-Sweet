@@ -53,7 +53,17 @@ Please kindly compile all projects in RELEASE mode.
     Next step will be digging into beacon and reverse shell payloads and learn more about the asm implementation, see what can be harnessed.
 
     Referneces:
+    <br/>OSED Course
     <br/>https://www.bordergate.co.uk/windows-x64-shellcode-development/
     <br/>https://www.aldeid.com/wiki/PE-Portable-executable
     <br/>https://www.aldeid.com/wiki/PE-Portable-executable#Export_Table
+    <br/>https://learn.microsoft.com/en-us/cpp/build/x64-software-conventions?view=msvc-170
     <br/>https://defuse.ca/online-x86-assembler.htm
+
+* CustomShellcode
+
+    Custom written shellcode with Windows `WSA` socket APIs and `CreateProcess`. Furture attempts of handcrafted shellcodes will be added here.
+
+    References:
+    <br/>OSED Course
+
