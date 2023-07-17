@@ -62,7 +62,7 @@ Please kindly compile all projects in RELEASE mode.
 
 * CustomShellcode
 
-    Custom written shellcode with Windows `WSA` socket APIs and `CreateProcess`. Furture attempts of handcrafted shellcodes will be added here.
+    Custom written shellcode with Windows `WSA` socket APIs and `CreateProcess`. Furture attempts of handcrafted shellcodes will be added here. Tested on Windows 10 1809, 1909, 21H1, 22H2, Windows 11 22H2.
 
     References:
     <br/>OSED Course
