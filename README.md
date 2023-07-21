@@ -40,19 +40,19 @@ Please kindly compile all projects in RELEASE mode.
 
     [*] ProcessHollowing_1
 
-        Write shellcode to host process's entry point, then resume host thread. Host process: `svchost.exe`.
+  	Write shellcode to host process's entry point, then resume host thread. Host process: `svchost.exe`.
 
     [*] ProcessHollowing_2
 
-        Write PE to host process's memory region. Patch host process's entry point to jump to our PE's entry point, then resume host thread. Host process: `RuntimeBroker.exe`.
+  	Write PE to host process's memory region. Patch host process's entry point to jump to our PE's entry point, then resume host thread. Host process: `RuntimeBroker.exe`.
 
     [*] ProcessHollowing_3
 
-        Write PE to host process's memory region. Hijack host process's RCX register (which points to entry point), then resume host thread. Host process: `Werfault.exe`.
+  	Write PE to host process's memory region. Hijack host process's RCX register (which points to entry point), then resume host thread. Host process: `Werfault.exe`.
 
     [*] ProcessHollowing_4
 
-        Read PE from disk (or resources), patch ImageBase, IAT, relocations locally (don't have to read host process info after writing the PE anymore), write patched PE to host process, hijack host process's RCX register, then resume host thread. Now, we can handle more complex PEs which have a lot of imports and relocations, and of course simpler PEs like our shellcode runner should be running as intended. Tested with `putty.exe` on Windows version 1809, 1909, 21H1, 22H2, Windows 11 version 22H2.
+  	Read PE from disk (or resources), patch ImageBase, IAT, relocations locally (don't have to read host process info after writing the PE anymore), write patched PE to host process, hijack host process's RCX register, then resume host thread. Now, we can handle more complex PEs which have a lot of imports and relocations, and of course simpler PEs like our shellcode runner should be running as intended. Tested with `putty.exe` on Windows version 1809, 1909, 21H1, 22H2, Windows 11 version 22H2.
 
     References:
     <br/>https://www.blackhat.com/docs/asia-17/materials/asia-17-KA-What-Malware-Authors-Don't-Want-You-To-Know-Evasive-Hollow-Process-Injection-wp.pdf
