@@ -86,3 +86,12 @@ Please kindly compile all projects in RELEASE mode.
     References:
     <br/>OSED Course
 
+* SharedMemoryInjection
+
+    Inject DLL into target process which will open a file mapping object and we inject shellcode into that memroy region. The region is not mapped yt, but it will be there as long as the process is alive (check with process hacker, etc...). That being said, explorer might be the best option.
+
+    Then, any process can enumerate that "Section" object, map it, read the shellcode from it, then execute. Just some idea after watching Pavel Yosifovich's video. Check references for the video link. Tested on Windows version 1809, 1909, 21H1, 22H2, Windows 11 22H2.
+
+    References:
+    <br/>https://www.youtube.com/watch?v=zdZdtg1f9lA&t=776s
+
