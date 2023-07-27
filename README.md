@@ -81,10 +81,15 @@ Please kindly compile all projects in RELEASE mode.
 
 * CustomShellcode
 
+    [*] WSASocketReverseShell
     Custom written shellcode with Windows `WSA` socket APIs and `CreateProcess`. Furture attempts of handcrafted shellcodes will be added here. Tested on Windows 10 1809, 1909, 21H1, 22H2, Windows 11 22H2.
+
+    [*] MetTheStager
+    Meterpreter stager in assembly. The code breaks the `/xbf` signature by adding a little extra bytes. Tested on Windows Server 2019, Windows 10 1809, Windows 11. Both locally and remotely. With a good loader, we can spawn meterpreter shell, but be careful with `shell` command. Most of the time, it will be flagged.
 
     References:
     <br/>OSED Course
+    <br/>https://defuse.ca/online-x86-assembler.htm
 
 * SharedMemoryInjection
 
@@ -97,7 +102,7 @@ Please kindly compile all projects in RELEASE mode.
 
 * MetTheStager
 
-    Manual stager for meterpreter reverse tcp in C. You won't believe that it's less than 80 lines of code with socket and one "magic" byte. In a nutshell, the code uses socket to first get a DWORD from remote host, and that's the length of the whole second stage payload. Next, the code allocates a buffer for the second stage according to the length just recieved, but plus 0x5 for the fact that meterpreter needs the socket handle to be in register `rdi` when second stage starts. So, the first 5 bytes of our buffer will be the opcode of instruction `mov edi, 0x11223344`, which will be `\xbf\x44\x33\x22\x11`. `0x11223344` is the place holder for the socket handle. Then, the code fetches the second payload and append it after the first 5 bytes, and executes the whole second stage. That's how a tcp reverse meterpreter payload is staged.
+    Manual stager for meterpreter reverse tcp in C. You won't believe that it's less than 80 lines of code with socket and one "magic" byte. In a nutshell, the code uses socket to first get a DWORD from remote host, and that's the length of the whole second stage payload. Next, the code allocates a buffer for the second stage according to the length just received, but plus 0x5 for the fact that meterpreter needs the socket handle to be in register `rdi` when second stage starts. So, the first 5 bytes of our buffer will be the opcode of instruction `mov edi, 0x11223344`, which will be `\xbf\x44\x33\x22\x11`. `0x11223344` is the place holder for the socket handle. Then, the code fetches the second payload and append it after the first 5 bytes, and executes the whole second stage. That's how a tcp reverse meterpreter payload is staged.
 
     The benefit is that now we can spawn staged meterpreter shells (with second stage encoded) with this manual stager, and without Windows Defender buzzing. If you use a vanilla stager from msfvenom, Windows Defender will flag the loader when the stager is executed. Meterpreter shell spawned on Windows version 1909, 21H1, 22H2, Windows 11 22H2.
 
@@ -109,6 +114,8 @@ Please kindly compile all projects in RELEASE mode.
     Windows 11 22H2 - cmd shell will be flagged, migrating to other process solves the issue
 
     Next, the code will be converted into custom shellcode in assembly.
+
+    The assembly code has been added to CustomShellcode/MetTheStager.
 
     References:
     <br/>https://github.com/rapid7/metasploit-framework/blob/master/external/source/shellcode/windows/x64/src/block/block_reverse_tcp.asm

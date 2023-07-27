@@ -64,7 +64,7 @@ int main()
 		goto _exit;
 	}
 
-	printf("[*]%d bytes of data recieved, need to allocated %ld bytes of stage 2 buffer ...\n", dwBytesRecved, dwStage2Size);
+	printf("[*]%d bytes of data received, need to allocated %ld bytes of stage 2 buffer ...\n", dwBytesRecved, dwStage2Size);
 
 	//
 	// allocate memory region for stage 2
