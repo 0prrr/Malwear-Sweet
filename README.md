@@ -82,10 +82,12 @@ Please kindly compile all projects in RELEASE mode.
 * CustomShellcode
 
     [*] WSASocketReverseShell
-    Custom written shellcode with Windows `WSA` socket APIs and `CreateProcess`. Furture attempts of handcrafted shellcodes will be added here. Tested on Windows 10 1809, 1909, 21H1, 22H2, Windows 11 22H2.
+
+  	Custom written shellcode with Windows `WSA` socket APIs and `CreateProcess`. Furture attempts of handcrafted shellcodes will be added here. Tested on Windows 10 1809, 1909, 21H1, 22H2, Windows 11 22H2.
 
     [*] MetTheStager
-    Meterpreter stager in assembly. The code breaks the `/xbf` signature by adding a little extra bytes. Tested on Windows Server 2019, Windows 10 1809, Windows 11. Both locally and remotely. With a good loader, we can spawn meterpreter shell, but be careful with `shell` command. Most of the time, it will be flagged.
+
+  	Meterpreter stager in assembly. The code breaks the `/xbf` signature by adding a little extra bytes. Tested on Windows Server 2019, Windows 10 1809, Windows 11. Both locally and remotely. With a good loader, we can spawn meterpreter shell, but be careful with `shell` command. Most of the time, it will be flagged.
 
     References:
     <br/>OSED Course
@@ -109,9 +111,9 @@ Please kindly compile all projects in RELEASE mode.
     Other little test results for reference:
 
     Windows 1909 - cmd shell will be flagged, migrating to other process solves the issue
-    WIndows 21H1 - cmd shell, and migrating all flagged
-    Windows 22H2 - cmd shell, and migrating all flagged
-    Windows 11 22H2 - cmd shell will be flagged, migrating to other process solves the issue
+    <br/>WIndows 21H1 - cmd shell, and migrating all flagged
+    <br/>Windows 22H2 - cmd shell, and migrating all flagged
+    <br/>Windows 11 22H2 - cmd shell will be flagged, migrating to other process solves the issue
 
     Next, the code will be converted into custom shellcode in assembly.
 
