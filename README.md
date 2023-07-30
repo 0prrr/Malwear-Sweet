@@ -94,7 +94,7 @@ Meterpreter stager in assembly. The code breaks the `/xbf` signature by adding a
 
 Meterpreter reverse https stager in assembly. I have no idea yet how the server uri is generated (enlighten me, anyone). So I grabbed a msfvenom stager and extracted one (a very long one...) from the payload. Now, we can stage https meterpreter reverse shell with this code.
 
-If you want to extract on server uri string yourself (in case mine is not working anymore), `srv_uri_2_bytes.py` is a helper script to help you generate instruction templates. Just paste extracted uri string in, and run it. Details are in the script's comment section.
+If you want to extract one server uri string yourself (in case mine is not working anymore), `srv_uri_2_bytes.py` is a helper script to help you generate instruction templates. Just paste extracted uri string in, and run it. Details are in the script's comment section.
 
 Though msfvenom https meterpreter stager is weiredly not flagged by Windows Defender but I guess more options are better.
 
@@ -102,13 +102,13 @@ If you were to debug the code, note that a breakpoint on the second stage buffer
 
 And if you want to interact with a cmd shell, don't do `shell` command, do `execute -f cmd -i -H`, you should be good to go with that.
 
-However, a basic loader with the shellcode won't cut it on Elastic Endpoint Security guarded Windows Server 2019. Need to power up.
+However, a basic loader with the shellcode won't cut it on Elastic Endpoint Security guarded Windows Server 2019 (lab I got). Need to power up.
 
 If you see https payload is staging but the session died after, chances are the second stage payload is still flagged by memory scan. Delay the execution, set the memory region with PAGE_GUARD or whatever, wait the scan out and meterpreter should be yours.
 
 One more thing to consider is the self-signed certificate. Better to generate a certificate with a more liget name other than ones like trantow.llc.biz.
 
-Tested on Windows 10 1909, 21H1, 22H2, Windows 11 22H2. Shellcode lives without any obfuscation and encryption (that's even on elastic too, but obf and enc is still recommended), using a basic VirtualAlloc+CreateThread loader, was able to spawn a meterpreter reverse https shell, functions well. Yet the most interesting thing is about Windows 11, where you can use `shell` command to spawn a cmd and even migrate (blocked on all other test cases), Windows Defender wouldn't say anything -_-!
+Tested on Windows 10 1909, 21H1, 22H2, Windows 11 22H2. Shellcode lives without any obfuscation and encryption (that's even on elastic too, but obf and enc is still recommended), using a basic VirtualAlloc + CreateThread loader, was able to spawn a meterpreter reverse https shell, functions well. Yet the most interesting thing is about Windows 11, where you can use `shell` command to spawn a cmd and even migrate (blocked on all other test cases), Windows Defender wouldn't say anything -_-!
 
 A little different situation with Windows Server 2019. Windows Defender on server edition (data center especially) is doing a better job, it will flag the https meterpreter second stage soon it starts executing.
 
