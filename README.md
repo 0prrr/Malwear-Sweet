@@ -114,7 +114,7 @@ A little different situation with Windows Server 2019. Windows Defender on serve
 
 Now, even though detonating a payload on windows server for intial access is not common, better to be able to deal with that too. In the shell code, before executing the second stage, the shellcode will mark second stage as PAGE_NOACCESS, then sleep for 10 seconds, then mark the region as RWX again, then, meterpreter shell spawns on those servers. `execute -f cmd -i -H` works too, defender not responding to that.
 
-At the time of writing, the code is able to get meterpreter https reverse shell on Elastic Endpoint guarded Windows 10 22H2 and Windows 2019 Data Center.
+At the time of writing, the code is able to get meterpreter https reverse shell (with a good loader ofc, learn to build one from MalDevAcademy) on Elastic Endpoint guarded Windows 10 22H2 and Windows 2019 Data Center.
 
 Don't forget to set `AutoVerifySessionTimeout` option to a larger number, say 60 seconds, to prevent session from timing out.
 
