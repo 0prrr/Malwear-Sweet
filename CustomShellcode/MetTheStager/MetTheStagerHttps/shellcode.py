@@ -1,6 +1,6 @@
 """
-IP address at line: 226
-Port at line: 231
+IP address at about line 226
+Port at about line 231
 """
 
 import ctypes, struct
