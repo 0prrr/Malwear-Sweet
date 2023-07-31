@@ -122,6 +122,22 @@ Have fun~
 
 Edit: Forget about PAGE_NOACCESS thing. It turned out to be I set a proxy that's not working... Plus, the PAGE_NOACCESS implementation won't work if there's truly a memory scan, because without a hook, you will never get ahead of the scan, useless implementation, removed.
 
+### MetTheStager/MetTheStagerBeaconHttps
+
+Cobalt Strike payload is tightly connected with profile. Avoid basic profile, custom tweaking makes better.
+
+In the description next, basic loader refers to the 5-ish line code, VirtualAlloc + memcpy + CreateThread, and team server is started with bingsearch_getonly profile.
+
+With a basic loader, encrypted CS https stager will survive signature detection. But, all windows defender (1809, 1909, 21H1, 22H2, Windows 11 22H2) flags it when decrypted and write to memory, not event start executing yet.
+
+With a better crafted loader, the stager is able to spawn a beacon, but inject into another process kills it.
+
+Now, with a basic loader, the custom stager shellcode can spawn a beacon, and injection into another process (runtimebroker, explorer, etc).
+
+Feels like Windows defender is doing its work based on a score rating system. The encrypted vanilla stager from CS has raised the score high enough, openning another process and doing injection (not even runtimebroker) breaks through the threshold and gets the beacon flagged (that is on Windows 10 1809, 1909, 21H2, 22H2 and Windows 11 22H2, all my test VMs). The custom stager, the score may not be that high, so based on system version, injecting into runtimebroker succeeds, even explorer.exe. Anyway, stay low, avoid injecting into explorer.exe.
+
+On server edition (Windows Server 2019 Data Center), spawning beacon with custom stager (needs a better loader) is not a problem, but cannot inject.
+
 References:
 <br/>OSED Course
 <br/>https://defuse.ca/online-x86-assembler.htm
