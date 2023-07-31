@@ -2,6 +2,7 @@ import sys
 
 if len(sys.argv) < 2:
     print(f'Usage: {sys.argv[0]} <IPv4>')
+    sys.exit(-1)
 
 def reverse(string):
     string = string[::-1]
