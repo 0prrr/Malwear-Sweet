@@ -138,6 +138,8 @@ Feels like Windows defender is doing its work based on a score rating system. Th
 
 On server edition (Windows Server 2019 Data Center), spawning beacon with custom stager (needs a better loader) is not a problem, but cannot inject.
 
+To modify the code, like meterpreter, you may need to generate a raw stager first, then debug it to extract a beacon uri, and a user-agent string to make a valid request to downlaod the second stage. A few single steps will do.
+
 References:
 <br/>OSED Course
 <br/>https://defuse.ca/online-x86-assembler.htm
