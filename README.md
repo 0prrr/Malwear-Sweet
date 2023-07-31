@@ -104,15 +104,13 @@ And if you want to interact with a cmd shell, don't do `shell` command, do `exec
 
 However, a basic loader with the shellcode won't cut it on Elastic Endpoint Security guarded Windows Server 2019 (lab I got). Need to power up.
 
-If you see https payload is staging but the session died after, chances are the second stage payload is still flagged by memory scan. Delay the execution, set the memory region with PAGE_GUARD or whatever, wait the scan out and meterpreter should be yours.
-
 One more thing to consider is the self-signed certificate. Better to generate a certificate with a more liget name other than ones like trantow.llc.biz.
 
 Tested on Windows 10 1909, 21H1, 22H2, Windows 11 22H2. Shellcode lives without any obfuscation and encryption (that's even on elastic too, but obf and enc is still recommended), using a basic VirtualAlloc + CreateThread loader, was able to spawn a meterpreter reverse https shell, functions well. Yet the most interesting thing is about Windows 11, where you can use `shell` command to spawn a cmd and even migrate (blocked on all other test cases), Windows Defender wouldn't say anything -_-!
 
 A little different situation with Windows Server 2019. Windows Defender on server edition (data center especially) is doing a better job, it will flag the https meterpreter second stage soon it starts executing.
 
-Now, even though detonating a payload on windows server for intial access is not common, better to be able to deal with that too. In the shell code, before executing the second stage, the shellcode will mark second stage as PAGE_NOACCESS, then sleep for 10 seconds, then mark the region as RWX again, then, meterpreter shell spawns on those servers. `execute -f cmd -i -H` works too, defender not responding to that.
+Now, even though detonating a payload on windows server for intial access is not common, better to be able to deal with that too. The shellcode spawns meterpreter shell on those servers editions too, just need a better loader. `execute -f cmd -i -H` works too, defender not responding to that.
 
 At the time of writing, the code is able to get meterpreter https reverse shell (with a good loader ofc, learn to build one from MalDevAcademy) on Elastic Endpoint guarded Windows 10 22H2 and Windows 2019 Data Center.
 
@@ -121,6 +119,8 @@ Don't forget to set `AutoVerifySessionTimeout` option to a larger number, say 60
 Still, STAY AWAY FROM `shell` command, stick with `execute -f cmd -i -H` (powershell too).
 
 Have fun~
+
+Edit: Forget about PAGE_NOACCESS thing. It turned out to be I set a proxy that's not working... Plus, the PAGE_NOACCESS implementation won't work if there's truly a memory scan, because without a hook, you will never get ahead of the scan, useless implementation, removed.
 
 References:
 <br/>OSED Course
