@@ -31,9 +31,19 @@ This is the ultimate go if ever have to use a ROP gadget. A gadget in `bcyrpt.dl
     
 Code ported from [CCob and rasta-mouse's threadless injection](https://github.com/CCob/ThreadlessInject/tree/master). Tested on Windows version 1809 (explorer.exe, chrome.exe, firefox.exe, notepad.exe), 1909 (explorer.exe, chrome.exe, msedge.exe, notepad.exe), 21H1 (explorer.exe, chrome.exe, msedge.exe, notepad.exe), 22H2 (explorer.exe, chrome.exe, msedge.exe, notepad.exe), Win11 22H2 (explorer.exe, chrome.exe, msedge.exe, firefox.exe, notepad.exe). CreateEventW is enough to trigger on all tested processes. Please add your own shellcode encryption. Feel free to add other techniques.
 
-## COMShellExecute
+## ComponentObjectModel
+
+### COMShellExecute
     
 Use `ShellExecute` method exposed by COM object `13709620-C279-11CE-A49E-444553540000` to execute command in C. Nothing interesting, just for fun and stuff.
+
+### COMemExecuateAssembly
+
+Execute dot net assembly application through native C/C++ code using COM. Finally, have been working on this for a little while, pieced together a working PoC that bridged that gap between managed and unmanged world. How wonderful it is to be able to utilize the power of .Net. Sweet~
+
+References:
+<br/>https://github.com/rapid7/meterpreter/blob/master/source/server/server_setup_win.c
+<br/>https://0xpat.github.io/Malware_development_part_9/
 
 ## ProcessHollowing (Not quite)
     
