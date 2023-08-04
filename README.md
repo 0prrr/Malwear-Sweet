@@ -41,8 +41,8 @@ Use `ShellExecute` method exposed by COM object `13709620-C279-11CE-A49E-4445535
 Execute dot net assembly application through native C/C++ code using COM. Finally, have been working on this for a little while, pieced together a working PoC that bridged that gap between managed and unmanged world. How wonderful it is to be able to utilize the power of .Net. Sweet~
 
 Tested assemblies (DotNet Version v2.0.50727):
-SeatBelt - Target dot net version: 3.5; Platform: AnyCPU;
-SharpUp  - Target dot net version: 3.5; Platform: AnyCPU;
+<br/>SeatBelt - Target dot net version: 3.5; Platform: AnyCPU;
+<br/>SharpUp  - Target dot net version: 3.5; Platform: AnyCPU;
 
 v4.0 mscorlib will always give 0x8007000B error (mal-format file???).
 
