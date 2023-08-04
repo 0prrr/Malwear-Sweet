@@ -14,7 +14,6 @@ References:
 <br/>https://renenyffenegger.ch/notes/Windows/development/native-applications/index
 <br/>https://stackoverflow.com/questions/10164724/windows-registry-how-to-add-your-native-program-for-boot-executing
 
-
 ## TheLostThread
 
 Hijack a thread without calling SetThreadContext. Still needs improvement because I'm lazy and haven't implement the whole thing well enough to maintain the original functionality of the thread. Just a quick and dirty PoC. Tested on Windows version 1809 (chrome.exe, msedge.exe, notepad.exe), 22H2 (chrome.exe, msedge.exe, notepad.exe), Windows 11 22H2 (chrome.exe, firefox.exe, msedge.exe, notepad.exe). Be ware of payload execution control. Browsers tend to execute the payload multiple times.
@@ -40,6 +39,14 @@ Use `ShellExecute` method exposed by COM object `13709620-C279-11CE-A49E-4445535
 ### COMemExecuateAssembly
 
 Execute dot net assembly application through native C/C++ code using COM. Finally, have been working on this for a little while, pieced together a working PoC that bridged that gap between managed and unmanged world. How wonderful it is to be able to utilize the power of .Net. Sweet~
+
+Tested assemblies (DotNet Version v2.0.50727):
+SeatBelt - Target dot net version: 3.5; Platform: AnyCPU;
+SharpUp  - Target dot net version: 3.5; Platform: AnyCPU;
+
+v4.0 mscorlib will always give 0x8007000B error (mal-format file???).
+
+So, stick with dot net version 3.5, and use for situatinoal awareness tasks is now an option.
 
 References:
 <br/>https://github.com/rapid7/meterpreter/blob/master/source/server/server_setup_win.c
