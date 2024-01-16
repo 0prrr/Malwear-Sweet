@@ -7,6 +7,8 @@ SIGNING := osslsigncode
 CFLAGS := -Wno-incompatible-pointer-types -Wno-int-conversion -Wno-pointer-integer-compare -Wno-implicit-function-declaration -Wl,--subsystem,console -Os -s -D_DEBUG -fno-exceptions -fno-stack-protector -fno-PIE -D_FORTIFY_SOURCE=0 -nodefaultlibs -nostdlib -luser32 -lkernel32 -e$(ENTRY)
 
 OPENSSLFLAGS := req -x509 -nodes -days 365 -newkey rsa:2048 -keyout mal.key -out mal.crt
+
+# for linux systems, use date -d "dd/mm/yyyy hh:mm:ss" +"%s" instead to get unix epoch time
 SIGNFLAGS := sign -certs ./mal.crt -key ./mal.key -n "whatever" -i https://whatever.io -time `date -j -f "%Y-%m-%d %H:%M:%S" "2018-03-13 09:13:33" "+%s"` -in whatever.exe -out whatever_signed.exe
 
 RSRC := *.rc
