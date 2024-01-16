@@ -4,7 +4,7 @@ CC := ~/Devil/lib/llvmingw281123-1706-bsd-x86_64/bin/x86_64-w64-mingw32-gcc
 OPENSSL := openssl
 SIGNING := osslsigncode
 
-CFLAGS := -Wno-incompatible-pointer-types -Wno-int-conversion -Wno-pointer-integer-compare -Wno-implicit-function-declaration -Wl,--subsystem,console -Os -s -D_DEBUG -fno-exceptions -fno-stack-protector -fno-PIE -D_FORTIFY_SOURCE=0 -nodefaultlibs -nostdlib -luser32 -lkernel32 -e$(ENTRY)
+CFLAGS := -Wno-everything -Wl,--subsystem,console -Os -s -D_DEBUG -fno-exceptions -fno-stack-protector -fno-PIE -D_FORTIFY_SOURCE=0 -nodefaultlibs -nostdlib -luser32 -lkernel32 -e$(ENTRY)
 
 OPENSSLFLAGS := req -x509 -nodes -days 365 -newkey rsa:2048 -keyout mal.key -out mal.crt
 
@@ -29,6 +29,7 @@ $(EXE_TARGET): $(RSRC_TARGET)
 	if [ ! -f $(CRT_FILE) ]; then $(OPENSSL) $(OPENSSLFLAGS); fi
 	if [ -f $(EXE_TARGET_SIGNED) ]; then rm -rf $(EXE_TARGET_SIGNED); fi
 	$(SIGNING) $(SIGNFLAGS)
+	chmod +x $(EXE_TARGET_SIGNED)
 
 $(RSRC_TARGET):
 	@@echo "[*]Compiling resource file ..."
