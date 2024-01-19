@@ -23,6 +23,31 @@ const DWORD mal_nt_hash_arr[] = {
     0x369BD981      // NtClose
 };
 
+// !!! NOTE THAT ORDER MUST MATCH !!!
+const DWORD win_api_hash_arr[] = {
+    0x54C1D227,     // LoadLibraryA
+    0x1E73D3C6,     // AddVectoredExceptionHandler
+    0xE35AA59E,     // RemoveVectoredExceptionHandler
+    0x64D58672,     // CreateTimerQueue
+    0x1206428D,     // CreateTimerQueueTimer
+    0x78C9046C,     // RtlAddFunctionTable
+    0xB7DEBBF2,     // InitializeCriticalSection
+    0xEE965B0B,     // EnterCriticalSection
+    0x4E34D319      // LeaveCriticalSection
+};
+
+const DWORD win_dll_hash_arr[] = {
+    0xFD2AD9BD,     // KERNEL32
+    0xFD2AD9BD,     // KERNEL32
+    0xFD2AD9BD,     // KERNEL32
+    0xFD2AD9BD,     // KERNEL32
+    0xFD2AD9BD,     // KERNEL32
+    0xFD2AD9BD,     // KERNEL32
+    0xFD2AD9BD,     // KERNEL32
+    0xFD2AD9BD,     // KERNEL32
+    0xFD2AD9BD,     // KERNEL32
+};
+
 #ifdef _DEBUG
 
 const PCHAR mal_nt_name_arr[] = {
@@ -37,6 +62,18 @@ const PCHAR mal_nt_name_arr[] = {
     "NtDelayExecution",
     "NtWaitForSingleObject",
     "NtClose"
+};
+
+const PCHAR win_api_name_arr[] = {
+    "LoadLibraryA",
+    "AddVectoredExceptionHandler",
+    "RemoveVectoredExceptionHandler",
+    "CreateTimerQueue",
+    "CreateTimerQueueTimer",
+    "RtlAddFunctionTable",
+    "InitializeCriticalSection",
+    "EnterCriticalSection",
+    "LeaveCriticalSection"
 };
 
 #endif

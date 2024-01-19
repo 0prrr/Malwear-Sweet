@@ -18,6 +18,7 @@
 #include "log.h"
 
 MAL_NT_API_TBL g_mal_nt_api_tbl = { 0 };
+WIN_API_TBL g_win_api_tbl = { 0 };
 
 // mingw definition
 void * __cdecl memcpy(void * __restrict__ _dst, const void * __restrict__ _src, size_t _size) __MINGW_ATTRIB_DEPRECATED_SEC_WARN
@@ -49,9 +50,15 @@ int woohoo(int argc, char** argv)
 	// initializing the used syscalls
 	if (!init_nt_syscalls())
 	{
-		_DLOGA("[-]Failed to initialize API sets ... Abort ...\n");
+		_DLOGA("[-]Failed to initialize NT API sets ... Abort ...\n");
 		return -1;
 	}
+
+    if (!init_win_api())
+    {
+		_DLOGA("[-]Failed to initialize windows API sets ... Abort ...\n");
+		return -1;
+    }
 
 	_DLOGA("[*]API initialization done... \n");
 

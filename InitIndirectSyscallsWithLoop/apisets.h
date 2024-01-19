@@ -37,8 +37,27 @@ typedef struct _MAL_NT_API_TBL
     NT_SYSCALL NtClose;
 } MAL_NT_API_TBL, *PMAL_NT_API_TBL;
 
+typedef struct _WIN_API_TBL
+{
+    FARPROC LoadLibraryA;
+    FARPROC AddVectoredExceptionHandler;
+    FARPROC RemoveVectoredExceptionHandler;
+    FARPROC CreateTimerQueue;
+    FARPROC CreateTimerQueueTimer;
+    FARPROC RtlAddFunctionTable;
+    FARPROC InitializeCriticalSection;
+    FARPROC EnterCriticalSection;
+    FARPROC LeaveCriticalSection;
+} WIN_API_TBL, *PWIN_API_TBL;
+
 extern const PCHAR mal_nt_name_arr[];
+extern const PCHAR win_api_name_arr[];
+
 extern const DWORD mal_nt_hash_arr[];
+extern const DWORD win_api_hash_arr[];
+extern const DWORD win_dll_hash_arr[];
+
 extern MAL_NT_API_TBL g_mal_nt_api_tbl;
+extern WIN_API_TBL g_win_api_tbl;
 
 #endif //!APISET_H

@@ -1,27 +1,5 @@
 #include "syscall.h"
 
-#define INITIAL_SEED 8
-
-DWORD jenkins(_In_ PCHAR String)
-{
-    SIZE_T Index = 0;
-    UINT32 Hash = 0;
-    SIZE_T Length = lstrlenA(String);
-
-    while (Index != Length)
-    {
-        Hash += String[Index++];
-        Hash += Hash << INITIAL_SEED;
-        Hash ^= Hash >> 6;
-    }
-
-    Hash += Hash << 3;
-    Hash ^= Hash >> 11;
-    Hash += Hash << 15;
-
-    return Hash;
-}
-
 BOOL resolve_nt_syscall(_In_ DWORD dw_syscall_hash, _Out_ PNT_SYSCALL pNtSys)
 {
     if (NULL != dw_syscall_hash)
