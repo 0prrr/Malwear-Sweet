@@ -1,17 +1,3 @@
-/*
-*
-* _DLOGA program that uses indirect syscall with arbitrary return addresses inside NTDLL.DLL.
-* The return addresses will be utilizing benign APIs which look unsuspicious, like the ones
-* for file operation.
-*
-* Payload is defined in 'payload.h'.
-*
-* Techniques of anti analysis are all in 'anti_anlysis.c', modify 'anti_anlysis.h' to activate
-* or deactive certain anti analysis techniques; main switch for anti analysis is defined in
-* common.h as '_ANTI_ANALYSIS'.
-*
-*/
-
 #include <windows.h>
 #include <stdio.h>
 #include "apisets.h"

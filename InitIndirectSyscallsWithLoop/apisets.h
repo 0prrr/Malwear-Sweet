@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef _APISET_H
-#define _APISET_H
+#ifndef _APISETS_H
+#define _APISETS_H
 
 #include <windows.h>
 
@@ -60,4 +60,4 @@ extern const DWORD win_dll_hash_arr[];
 extern MAL_NT_API_TBL g_mal_nt_api_tbl;
 extern WIN_API_TBL g_win_api_tbl;
 
-#endif //!APISET_H
+#endif //!APISETS_H
