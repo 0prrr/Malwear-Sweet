@@ -61,7 +61,7 @@ def _joaa(msg):
 
 if __name__ == "__main__":
     if (len(sys.argv) < 3):
-        print(f"[-]Usage: python {sys.argv[0]} <hash_type> <is_unicode> <str_to_hash>")
+        print(f"[-]Usage: python {sys.argv[0]} <hash_type> <comma_sep_str>")
         print(f"[-]Usage: For <hash_type>, choose from: d (djb2), c (crc32h), j (joaa)")
         print(f"[-]Usage: The script hashes the string as is")
         sys.exit(-1)
