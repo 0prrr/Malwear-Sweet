@@ -196,3 +196,7 @@ References:
 ## InitIndirectSyscallsWithLoop
 
 Code snippet to use pointer to loop through the Nt syscall struct to initialize each Nt API when integrating indirect syscalls. Don't have to manually initialize for each Nt API. Just have to update Nt API in `apisets.h` and `apisets.c`. Follow the instructions in those files. The arrays of API name string literals will be striped when in release mode, leave out the `-D_DEBUG` flag in Makefile to set exe in release mode. The Makefile contains instructions for compiling resources, exe. And generate self-signed certificate to sign the final executable. Set relevant variables to the right path of your own system. It is not demonstrated how to compile MASN asm file in this demo, I'll leave the command here: `jwasm -win64 filename.asm`. For JWasm project, refer to: https://github.com/JWasm/JWasm.
+
+## ApiHashingWithPython
+
+Python script to hash APIs and DLLs. Quick solution in contrast to have to modify C code and compile again. Haven't got my mind around the bit where the `>> 31` operation yields different results in python even if `c_int32` is used when porting crc32h algorithm. After printing every result of every operation, I came to the conclusion that I must do a `~` then plus `1` to compensate the discrepancy. Guess its got something to do with 2's complement but I don't know. Have fun~
