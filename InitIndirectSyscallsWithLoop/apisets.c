@@ -36,7 +36,7 @@ const DWORD win_api_hash_arr[] = {
     0x4E34D319      // LeaveCriticalSection
 };
 
-const DWORD win_dll_hash_arr[] = {
+const DWORD dll_hash_arr[] = {
     0xFD2AD9BD,     // KERNEL32
     0xFD2AD9BD,     // KERNEL32
     0xFD2AD9BD,     // KERNEL32

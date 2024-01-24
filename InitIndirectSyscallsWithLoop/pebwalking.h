@@ -7,6 +7,7 @@
 #include "structs.h"
 #include "hashing.h"
 #include "apisets.h"
+#include "log.h"
 
 char to_upper(_In_ char);
 HMODULE get_mod_hndl_by_hash(_In_ DWORD);

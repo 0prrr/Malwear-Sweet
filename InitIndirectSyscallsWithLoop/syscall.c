@@ -40,7 +40,7 @@ BOOL resolve_nt_syscall(_In_ DWORD dw_syscall_hash, _Out_ PNT_SYSCALL pNtSys)
         PVOID pFuncAddress = (PVOID)(ul_base_addr + pdw_arr_addr[pw_arr_ord[i]]);
 
         // if syscall found
-        if (_HASH(pcFuncName) == dw_syscall_hash)
+        if (_HASHA(pcFuncName) == dw_syscall_hash)
         {
             pNtSys->p_nt_func_addr = pFuncAddress;
 

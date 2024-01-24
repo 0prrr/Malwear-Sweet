@@ -55,7 +55,7 @@ extern const PCHAR win_api_name_arr[];
 
 extern const DWORD mal_nt_hash_arr[];
 extern const DWORD win_api_hash_arr[];
-extern const DWORD win_dll_hash_arr[];
+extern const DWORD dll_hash_arr[];
 
 extern MAL_NT_API_TBL g_mal_nt_api_tbl;
 extern WIN_API_TBL g_win_api_tbl;

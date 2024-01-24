@@ -39,26 +39,26 @@ HMODULE get_mod_hndl_by_hash(_In_ DWORD dw_mod_name_hash)
     PPEB p_peb = (PEB*)(__readgsqword(0x60));
 
     PPEB_LDR_DATA p_ldr = (PPEB_LDR_DATA)(p_peb->LoaderData);
-    PLDR_DATA_TABLE_ENTRY p_dte = (PLDR_DATA_TABLE_ENTRY)(p_ldr->InMemoryOrderModuleList.Flink);
+    PLDR_DATA_TABLE_ENTRY p_dte = (PLDR_DATA_TABLE_ENTRY)(((unsigned char*)p_ldr->InMemoryOrderModuleList.Flink) - 0x10);
 
     if (NULL == dw_mod_name_hash)
         return (HMODULE)(p_dte->InInitializationOrderLinks.Flink);
 
     while (p_dte)
     {
-        if (NULL != p_dte->FullDllName.Length && p_dte->FullDllName.Length < MAX_PATH)
+        if (p_dte->BaseDllName.Buffer && p_dte->BaseDllName.Length)
         {
-            CHAR upcase_dll_name[MAX_PATH];
-            DWORD i = 0;
-            while (p_dte->FullDllName.Buffer[i])
+            wchar_t upcase_dll_name[MAX_PATH];
+            size_t i = 0;
+            while (p_dte->BaseDllName.Buffer[i])
             {
-                upcase_dll_name[i] = (char)to_upper(p_dte->FullDllName.Buffer[i]);
+                upcase_dll_name[i] = (wchar_t)to_upper(p_dte->BaseDllName.Buffer[i]);
                 i++;
             }
-            upcase_dll_name[i] = '\0';
+            upcase_dll_name[i] = 0;
             // check if equal to target module name
-            if (dw_mod_name_hash == _HASH(upcase_dll_name))
-                return (HMODULE)(p_dte->InInitializationOrderLinks.Flink);
+            if (dw_mod_name_hash == _HASHW(upcase_dll_name))
+                return p_dte->DllBase;
         }
         else
             break;
@@ -116,7 +116,7 @@ FARPROC get_proc_addr_by_hash(_In_ HMODULE h_mod, _In_ DWORD dw_proc_hash)
         {
             PCHAR p_func_name = (PCHAR)(p_base + pdw_func_name_arr[i]);
 
-            if (dw_proc_hash == _HASH(p_func_name))
+            if (dw_proc_hash == _HASHA(p_func_name))
             {
                 p_proc_addr = (PVOID)(p_base + pdw_func_addr_arr[pw_func_ord_arr[i]]);
                 break;
@@ -142,7 +142,7 @@ FARPROC get_proc_addr_by_hash(_In_ HMODULE h_mod, _In_ DWORD dw_proc_hash)
             return NULL;
 
         // get the address of function the original call is forwarded to
-        p_proc_addr = get_proc_addr_by_hash(h_mod_fwd, _HASH(p_fwd_func));
+        p_proc_addr = get_proc_addr_by_hash(h_mod_fwd, _HASHA(p_fwd_func));
     }
 
     return (FARPROC)p_proc_addr;

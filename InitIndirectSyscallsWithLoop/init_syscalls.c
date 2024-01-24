@@ -39,7 +39,7 @@ BOOL init_win_api()
 
     for (size_t i = 0; i < win_api_cnt; i ++)
     {
-        *(ptr_win_api_tbl + i) = get_proc_addr_by_hash(get_mod_hndl_by_hash(win_dll_hash_arr[i]), win_api_hash_arr[i]);
+        *(ptr_win_api_tbl + i) = get_proc_addr_by_hash(get_mod_hndl_by_hash(dll_hash_arr[i]), win_api_hash_arr[i]);
         if (NULL == *(ptr_win_api_tbl + i))
         {
             _DLOGA("[-]Failed to resolve %s ... Abort ...\n", win_api_name_arr[i]);

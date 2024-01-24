@@ -4,9 +4,12 @@
 #define _HASHING_H
 
 #include <windows.h>
+#include "log.h"
 
-#define _HASH(API) jenkins(API)
+#define _HASHA(API) jenkinsa(API)
+#define _HASHW(API) jenkinsw(API)
 
-DWORD jenkins(_In_ PCHAR String);
+DWORD jenkinsa(_In_ PCHAR String);
+DWORD jenkinsw(_In_ PWCHAR String);
 
 #endif    //!HASHING_H

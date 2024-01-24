@@ -541,3 +541,6 @@ FodyWeavers.xsd
 *.hex
 
 src
+*.swp
+*.crt
+*.key
