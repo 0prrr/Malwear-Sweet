@@ -8,7 +8,7 @@ def _djb2(msg):
         if not b:
             continue
         _hash = (((_hash << 0x5) + _hash) + b) & 0xFFFFFFFF
-    return f"0x{_hash:02X}"
+    return f"0x{_hash:08X}"
 
 def _crc32h(msg):
     SEED = c_int32(0xEDBEA93F).value & 0xFFFFFFFF
@@ -33,7 +33,7 @@ def _crc32h(msg):
 
     _hash = ~crc & 0xFFFFFFFF
 
-    return f"0x{_hash:02X}"
+    return f"0x{_hash:08X}"
 
 JOAA_INIT_SEED = 8
 
@@ -57,12 +57,31 @@ def _joaa(msg):
     _hash += _hash << 15
     _hash = c_int32(_hash).value & 0xFFFFFFFF
 
-    return f"0x{_hash:02X}"
+    return f"0x{_hash:08X}"
+
+def _crc32b(msg):
+    SEED = c_int32(0xEDBEA93F).value
+
+    uMask = c_int32(0x0).value
+    uHash = c_int32(0xFFFFEFFF).value
+
+    for b in msg:
+        if not b:
+            continue
+        uHash ^= b
+        uHash = c_int32(uHash).value & 0xFFFFFFFF
+
+        for i in range(8):
+            uMask = c_int32(-1 * (uHash & 1)).value & 0xFFFFFFFF
+            uHash = (uHash >> 1) ^ (SEED & uMask)
+
+    _hash = c_int32(~uHash).value & 0xFFFFFFFF
+    return f"0x{_hash:08X}"
 
 if __name__ == "__main__":
     if (len(sys.argv) < 3):
         print(f"[-]Usage: python {sys.argv[0]} <hash_type> <comma_sep_str>")
-        print(f"[-]Usage: For <hash_type>, choose from: d (djb2), c (crc32h), j (joaa)")
+        print(f"[-]Usage: For <hash_type>, choose from: d (djb2), c (crc32h), cb (crc32b), j (joaa)")
         print(f"[-]Usage: The script hashes the string as is")
         sys.exit(-1)
 
@@ -80,6 +99,9 @@ if __name__ == "__main__":
     elif hash_type == 'c':  # crc32h
         for i in item_list:
             print(_crc32h(i.encode()))
+    elif hash_type == 'cb':  # crc32b
+        for i in item_list:
+            print(_crc32b(i.encode()))
     elif hash_type == 'j':  # joaa
         for i in item_list:
             print(_joaa(i.encode()))
