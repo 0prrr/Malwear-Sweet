@@ -1,3 +1,5 @@
+# generate function and module hash for resolving
+
 import numpy, sys
 
 def ror_str(byte, count):
@@ -24,4 +26,4 @@ if __name__ == '__main__':
             edx = ror_str(edx, 0xd)
         ror_count += 1
  
-    print(hex(edx))
+    print(f"0x{edx:08X}")

@@ -1,13 +1,9 @@
 """
-'s' is the uri extracted from msfvenom stager.
+'s' is the uri extracted from msfvenom stager (using x64dbg for example).
 
-Replace the existing string, and run:
+Passing the string as first argument:
 
-    python3 srv_uri_2_bytes.py
-
-then paste the generated code to your source, and feel free to
-
-modify anything as needed.
+    python3 srv_uri_2_bytes.py <URI String>
 """
 
 import math
