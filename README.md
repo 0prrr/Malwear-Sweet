@@ -44,7 +44,7 @@ Tested assemblies (DotNet Version v2.0.50727):
 <br/>SeatBelt - Target dot net version: 3.5; Platform: AnyCPU;
 <br/>SharpUp  - Target dot net version: 3.5; Platform: AnyCPU;
 
-v4.0 mscorlib will always give 0x8007000B error (mal-format file???).
+v4.0 mscorlib will always give 0x8007000B error (Disable windows defender for this!).
 
 So, stick with dot net version 3.5, and use for situatinoal awareness tasks is now an option.
 
