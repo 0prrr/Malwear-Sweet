@@ -200,3 +200,8 @@ Code snippet to use pointer to loop through the Nt syscall struct to initialize 
 ## ApiHashingWithPython
 
 Python script to hash APIs and DLLs. Quick solution in contrast to have to modify C code and compile again. Haven't got my mind around the bit where the `>> 31` operation yields different results in python even if `c_int32` is used when porting crc32h algorithm. After printing every result of every operation, I came to the conclusion that I must do a `~` then plus `1` to compensate the discrepancy. Guess its got something to do with 2's complement but I don't know. Have fun~
+
+## ObRegisterCallbacks
+
+Code to register kernel handle callbacks, which will print out information when a process opened a handle to lsass.
+Credit to @Intel80x86, original repo: https://github.com/SinaKarvandi/Misc/tree/master/ObRegisterCallbacks
