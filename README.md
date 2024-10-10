@@ -205,3 +205,8 @@ Python script to hash APIs and DLLs. Quick solution in contrast to have to modif
 
 Code to register kernel handle callbacks, which will print out information when a process opened a handle to lsass.
 Credit to @Intel80x86, original repo: https://github.com/SinaKarvandi/Misc/tree/master/ObRegisterCallbacks
+
+## HideString
+
+A simple function to hide string from `strings` command, in a consistent manner.
+
